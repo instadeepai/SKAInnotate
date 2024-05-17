@@ -1,4 +1,5 @@
-# SKAInnotate
+# SKAInnotate <img width="184" alt="image" src="https://github.com/instadeepai/SKAInnotate/assets/18593619/5b7f895f-9479-4d1c-82d0-5bd2cd744bf7">
+
 
 SKAInnotate is a data annotation tool designed to operate within Google Colab Notebooks. It consists of two main notebooks: one for project administration and another for annotators.
 
