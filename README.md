@@ -1,3 +1,4 @@
+# SKAInnotate
 <img src="https://github.com/instadeepai/SKAInnotate/assets/18593619/5b7f895f-9479-4d1c-82d0-5bd2cd744bf7" align="right"
      alt="SKAInnotate logo by Kobby" width="120" height="120">
      
