@@ -21,6 +21,7 @@ The Project Admin notebook provides the following capabilities:
 To use SKAInnotate effectively, ensure the following prerequisites are met:
 
 - **Google Cloud Project Permissions**: Configure the Google Cloud project with permissions to manage users and resources.
+The following roles should be sufficient for the admin; Cloud SQL Admin, Storage Admin and roles/resourcemanager.projectIamAdmin.
 - **Data Upload**: All data to be labeled must be uploaded to a Google Cloud Storage bucket.
 
 ### Adding Data for Labeling
