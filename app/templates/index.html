@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SKAInnotate Annotator</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .image-section,
+    .labels-section,
+    .annotator-details {
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .image-section img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 5px;
+    }
+
+    .labels-section label {
+      display: block;
+      margin: 10px 0;
+    }
+
+    .annotator-details {
+      background-color: #f9f9f9;
+      padding: 10px;
+      border-radius: 5px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 600px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>SKAInnotate Annotator</h1>
+
+    <div class="image-section">
+      <h2>Image to Annotate</h2>
+      <img id="annotate-image" src="" alt="Image for Annotation"> <!-- Image source will be set dynamically -->
+      <input type="hidden" id="current-image-id" value="">
+    </div>
+
+    <div class="button-container">
+      <button id="previous-btn">Previous</button>
+      <button id="next-btn">Next</button>
+    </div>
+
+    <div class="labels-section">
+      <h2>Label Options</h2>
+      <form id="label-form">
+        <!-- Template syntax for labels -->
+        {% for label in labels %}
+        <label>
+          <input type="radio" name="label" value="{{ label }}">
+          {{ label }}
+        </label>
+        {% endfor %}
+      </form>
+    </div>
+
+    <div class="annotator-details">
+      <h2>Annotator Details</h2>
+      <p><strong>Name:</strong> {{ username }}</p>
+      <p><strong>Email:</strong> {{ user_email }}</p>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async function () {
+      const ws = new WebSocket("ws://127.0.0.1:5000/ws");
+      ws.onmessage = function (event) {
+        console.log("Message from server:", event.data);
+      };
+
+      let imageIds = [];
+      let currentIndex = 0;
+      const imagesPath = "{{ images_path }}";
+
+      // Fetch image IDs from the server
+      async function fetchImageIds() {
+        try {
+          const response = await fetch("/list-images");
+          imageIds = await response.json();
+          updateImage(); // Update the image initially
+        } catch (error) {
+          console.error("Error fetching image IDs:", error);
+        }
+      }
+
+      document.getElementById('previous-btn').addEventListener('click', function () {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateImage();
+          sendNavigationEvent('previous');
+        }
+      });
+
+      document.getElementById('next-btn').addEventListener('click', function () {
+        if (currentIndex < imageIds.length - 1) {
+          currentIndex++;
+          updateImage();
+          sendNavigationEvent('next');
+        }
+      });
+
+      function updateImage() {
+        const imageElement = document.getElementById('annotate-image');
+        const currentImageIdElement = document.getElementById('current-image-id');
+        if (imageIds.length > 0) {
+          const currentImageId = imageIds[currentIndex];
+          imageElement.src = `${imagesPath}/${currentImageId}`;
+          currentImageIdElement.value = currentImageId;
+          fetchLabelForImage(currentImageId.split('.')[0]); // Strip the file extension
+        }
+      }
+
+      function fetchLabelForImage(imageId) {
+        fetch(`/api/label/${imageId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data && data.label) {
+              updateRadioButtonSelection(data.label);
+            } else {
+              updateRadioButtonSelection(null); // No label found
+            }
+          })
+          .catch(error => console.error('Error fetching label:', error));
+      }
+
+      function updateRadioButtonSelection(label) {
+        const radioButtons = document.querySelectorAll('input[name="label"]');
+        radioButtons.forEach(radio => {
+          radio.checked = (radio.value === label);
+        });
+      }
+
+      function sendLabelUpdate(imageId, label) {
+        const data = JSON.stringify({ event: "update_label", image_id: imageId, label: label });
+        ws.send(data);
+      }
+
+      function sendNavigationEvent(direction) {
+        const data = JSON.stringify({ event: "navigate", direction: direction });
+        ws.send(data);
+      }
+
+      document.getElementById('label-form').addEventListener('change', function (event) {
+        if (event.target.name === 'label') {
+          const selectedLabel = event.target.value;
+          const currentImageId = document.getElementById('current-image-id').value;
+          sendLabelUpdate(currentImageId, selectedLabel);
+        }
+      });
+
+      // Initial load
+      fetchImageIds();
+    });
+  </script>
+
+</body>
+
+</html>
