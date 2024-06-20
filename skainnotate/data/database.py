@@ -17,8 +17,8 @@ class ProjectConfigurations(Base):
   bucket_prefix = Column(String(255))
   comma_separated_labels = Column(String(255))
   max_annotators_per_example = Column(Integer)
-  completion_deadline = Column(TIMESTAMP, default=datetime.datetime.now(datetime.UTC))
-  created_at = Column(TIMESTAMP, default=datetime.datetime.now(datetime.UTC))
+  completion_deadline = Column(TIMESTAMP) #, default=datetime.datetime.now(datetime.UTC))
+  created_at = Column(TIMESTAMP) #, default=datetime.datetime.now(datetime.UTC))
 
   def __repr__(self) -> str:
     return (f'ProjectConfigurations('
@@ -36,10 +36,10 @@ class Example(Base):
 
   example_id = Column(String(255), primary_key=True, nullable=False)
   image = Column(String(255), nullable=False)
-  annotation_status = Column(String(255), 
-                             ENUM('complete', 'incomplete', 'under_review',
-                                  name='annotation_status_enum'), 
-                             default='incomplete')
+  # annotation_status = Column(String(255), 
+  #                            ENUM('complete', 'incomplete', 'under_review',
+  #                                 name='annotation_status_enum'), 
+  #                            default='incomplete')
 
   annotations = relationship("Annotation", back_populates="example")
   reviews = relationship("Review", back_populates="example")

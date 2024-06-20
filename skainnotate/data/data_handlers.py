@@ -2,33 +2,19 @@ import os
 import re
 from google.cloud import storage
 from pathlib import Path
-from utils.logger import logger
+from skainnotate.utils.logger import logger
 
-def split_gcs_path(gcs_path: str):
-  # Define the regex pattern
-  pattern_with_prefix = r'^gs://([a-zA-Z0-9_-]+)/(.+)$'
-  pattern_without_prefix = r'^gs://([a-zA-Z0-9_-]+)$'
-
-  # Match the pattern against the filepath
-  match_with_prefix = re.match(pattern_with_prefix, gcs_path)
-  match_without_prefix = re.match(pattern_without_prefix, gcs_path)
-  bucket_prefix = ''
-
-  if match_with_prefix:
-    bucket_name = match_with_prefix.group(1)
-    bucket_prefix = match_with_prefix.group(2)
-
-  elif match_without_prefix:
-    bucket_name = match_without_prefix.group(1)
-      
-  else:
-    logger.log_warning("No match found for the pattern.")
-  return bucket_name, bucket_prefix
+def split_gcs_path(path: str):
+  if path.startswith("gs://"):
+    path = path.split('gs://')[-1]
+    bucket_name, *bucket_prefix, filename = path.split('/')
+    bucket_prefix = '/'.join(bucket_prefix)
+  return bucket_name, bucket_prefix, filename
 
 def list_files_from_gcs(bucket_path):
   """Lists all the blobs in the bucket."""
   if bucket_path.startswith('gs://'):
-    bucket_name, bucket_prefix = split_gcs_path(bucket_path)
+    bucket_name, bucket_prefix, _ = split_gcs_path(bucket_path)
 
   storage_client = storage.Client()
 
@@ -79,3 +65,23 @@ def download_csv_from_bucket(
   blob.download_to_filename(path)
 
   return path
+
+def download_images_from_gcs(assigned_tasks: list, output_path: str
+  ) -> None:
+    logger.log_info("Downloading new examples")
+    for task in assigned_tasks:
+      bucket_name, bucket_prefix, image_filename = split_gcs_path(task.image)
+      if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+      client = storage.Client()
+      bucket = client.bucket(bucket_name)
+
+      blob = bucket.blob(os.path.join(bucket_prefix, image_filename))
+      image_basepath = "_".join([str(task.example_id), image_filename])
+      image_filepath = os.path.join(output_path, image_basepath)
+      try:
+        blob.download_to_filename(image_filepath)
+      except Exception as e:
+        logger.log_exception(e, f"Error downloading image: {e}")
+    logger.log_info("Done!")

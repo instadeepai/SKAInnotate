@@ -1,6 +1,6 @@
 import os
 import re
-from utils.logger import logger
+from skainnotate.utils.logger import logger
 
 def validate_email(email):
   """ Validate email format. """

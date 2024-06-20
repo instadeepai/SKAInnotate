@@ -1,11 +1,12 @@
 import pandas as pd
-from data.database import Annotator
-from data.database import Annotation
-from data.database import AssignedAnnotator
-from data.database import Example
-from tasks.assignments import round_robin_algorithm
-from data.data_handlers import list_files_with_extensions
-from utils.logger import logger
+import sqlalchemy as sqla
+from skainnotate.data.database import Annotator
+from skainnotate.data.database import Annotation
+from skainnotate.data.database import AssignedAnnotator
+from skainnotate.data.database import Example
+from skainnotate.tasks.assignments import round_robin_algorithm
+from skainnotate.data.data_handlers import list_files_with_extensions
+from skainnotate.utils.logger import logger
 
 IMAGE_PATH_KEY = 'image_path'
 USERNAME_KEY = 'username'
@@ -22,10 +23,8 @@ class TaskManagerRepository:
     # Query annotators and tasks
     annotators = session.query(Annotator).all()
     examples = session.query(Example).all()
-    # num_annotators = len(annotators)
-    # num_examples = len(examples)
+    
     example_annotator_map = round_robin_algorithm(examples, annotators, max_annotators_per_example)
-
     assignments = self.add_annotator_task_assignments(example_annotator_map)
 
     if return_assignments:
@@ -33,11 +32,28 @@ class TaskManagerRepository:
 
   def add_annotator_task_assignments(self, example_annotator_map: dict):
     assignments = []
-    for example, annotator in example_annotator_map.items():
-      assignments.append(
-          AssignedAnnotator(annotator_id=annotator.annotator_id,
-            example_id=example.example_id)
-            )
+    for example_id, annotator_ids in example_annotator_map.items():
+      for annotator_id in annotator_ids:
+        assignments.append(
+          AssignedAnnotator(annotator_id=annotator_id, example_id=example_id)
+        )
+    self.session.add_all(assignments)
+    self.session.commit()
+    return assignments
+  
+  def add_annotator_task_assignments(self, example_annotator_map: dict):
+    assignments = []
+    for example_id, annotator_ids in example_annotator_map.items():
+      for annotator_id in annotator_ids:
+        existing_assignment = (
+          self.session.query(AssignedAnnotator)
+          .filter_by(example_id=example_id, annotator_id=annotator_id)
+        ).first()
+
+        if not existing_assignment:
+          assignments.append(
+            AssignedAnnotator(annotator_id=annotator_id, example_id=example_id)
+        )
     self.session.add_all(assignments)
     self.session.commit()
     return assignments
@@ -72,7 +88,7 @@ class TaskManagerRepository:
     Return:
       None
     '''
-
+    if not data_path.endswith('/'): data_path += '/'
     files = list_files_with_extensions(data_path, file_extensions)
     id_path_tuples = [(id, file) for id, file in enumerate(files)]
     df = pd.DataFrame(id_path_tuples, columns=[EXAMPLE_ID_KEY, IMAGE_PATH_KEY])

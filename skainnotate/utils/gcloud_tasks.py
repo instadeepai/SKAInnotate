@@ -1,6 +1,6 @@
 import os
 import subprocess
-from utils.logger import logger
+from skainnotate.utils.logger import logger
 
 def run_bash_command(command, success_msg=None, failure_msg=None):
   """

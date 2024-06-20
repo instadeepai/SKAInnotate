@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
-from data.database import Reviewer
-from data.database import AssignedReviewer
-from data.database import Example
-from utils.logger import logger
+from skainnotate.data.database import Reviewer
+from skainnotate.data.database import AssignedReviewer
+from skainnotate.data.database import Example
+from skainnotate.utils.logger import logger
 
 
 class ReviewerRepository:
@@ -63,6 +63,6 @@ class ReviewerService:
     return assigned_examples
 
   def track_review_progress(self, reviewer_id: int):
-    # Implementation details to track review progress
+    #TODO Implementation details to track review progress
     pass
   # Add more methods as needed for reviewer-related operations

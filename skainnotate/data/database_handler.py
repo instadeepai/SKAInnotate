@@ -2,8 +2,8 @@ import sqlalchemy as sqla
 from sqlalchemy import exc
 from sqlalchemy.orm import sessionmaker, scoped_session
 from google.cloud.sql.connector import Connector
-from utils.logger import logger
-from data.database import Base
+from skainnotate.utils.logger import logger
+from skainnotate.data.database import Base
 
 class DatabaseManager:
   def __init__(

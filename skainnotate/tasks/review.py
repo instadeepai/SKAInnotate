@@ -1,10 +1,10 @@
 from typing import List
 from sqlalchemy.orm import Session
-from data.database import Review
-from data.database import Example
-from data.database import Reviewer
-from data.database import AssignedReviewer
-from utils.logger import logger
+from skainnotate.data.database import Review
+from skainnotate.data.database import Example
+from skainnotate.data.database import Reviewer
+from skainnotate.data.database import AssignedReviewer
+from skainnotate.utils.logger import logger
 
 class ReviewRepository:
   def __init__(self, session: Session):

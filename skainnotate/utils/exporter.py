@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 from typing import List
-from data.database import Annotation, Example
+from skainnotate.data.database import Annotation, Example
 
 def export_annotations_to_csv(annotations: List[Annotation], filename: str):
     """

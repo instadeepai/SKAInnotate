@@ -1,7 +1,7 @@
 import re
-from data.database import ProjectConfigurations
-from utils.database_helper import run_within_session
-from utils.logger import logger
+from skainnotate.data.database import ProjectConfigurations
+from skainnotate.utils.database_helper import run_within_session
+from skainnotate.utils.logger import logger
 
 class ProjectRepository:
   def __init__(self, session) -> None:

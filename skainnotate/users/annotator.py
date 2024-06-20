@@ -1,11 +1,11 @@
 from typing import List
-from utils.logger import logger
-from data.database import Annotator
-from data.database import AssignedAnnotator
-from data.database import Example
+from skainnotate.utils.logger import logger
+from skainnotate.data.database import Annotator
+from skainnotate.data.database import AssignedAnnotator
+from skainnotate.data.database import Example
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
-from utils.database_helper import run_within_session
+from skainnotate.utils.database_helper import run_within_session
 
 
 class AnnotatorRepository:

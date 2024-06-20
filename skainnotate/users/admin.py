@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from data.database import ProjectConfigurations
+from skainnotate.data.database import ProjectConfigurations
 
 class AdminRepository:
   def __init__(self, session: Session):

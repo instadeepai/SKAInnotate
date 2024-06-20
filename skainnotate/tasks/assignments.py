@@ -1,8 +1,9 @@
 from typing import List
 import pandas as pd
 from collections import Counter
-from data.database import Annotator
-from data.database import Example
+from collections import defaultdict
+from skainnotate.data.database import Annotator
+from skainnotate.data.database import Example
 
 LABEL_KEY = 'label'
 USERNAME_KEY = 'username'
@@ -15,13 +16,15 @@ def round_robin_algorithm(examples: List[Example],
                           max_annotators_per_example: int):
   num_annotators = len(annotators)
   num_examples = len(examples)
-  example_annotator_map = {}
+  example_annotator_map = defaultdict(list)
 
   for i in range(num_examples):
     example = examples[i]
     for j in range(max_annotators_per_example):
-      annotator = annotators[(i * max_annotators_per_example + j) % num_annotators]
-      example_annotator_map[example] = annotator
+      annotator_index = (i * max_annotators_per_example + j) % num_annotators
+      annotator = annotators[annotator_index]
+      example_annotator_map[example.example_id].append(annotator.annotator_id)
+
   return example_annotator_map
 
 def weighted_round_robin_algorithm(examples: List[Example],
