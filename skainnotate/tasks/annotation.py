@@ -115,7 +115,9 @@ class AnnotationWorkflow:
   def get_tasks_assigned_to_annotator(self, annotator_id: int, annotator_username):
     return self.annotation_repo.get_tasks_assigned_to_annotator(annotator_id, annotator_username)
   
-  def track_progress(self, annotator_id: int): # -> ProgressReport:
+  def track_progress(self, annotator_id: int): 
+    # TODO: Implement to keep progress of annotator 
+    # ie. number of annotated tasks as opposed to assigned tasks
     annotator = self.annotation_repo.get_annotator_by_id(annotator_id)
     progress_report = {}  # Replace with actual logic to calculate progress
     return progress_report

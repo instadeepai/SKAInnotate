@@ -52,3 +52,4 @@ class AnnotatorService:
   def __init__(self, session: Session):
     self.session = session
     self.annotator_repo = AnnotatorRepository(session)
+    #TODO: Implement annotator-specific capabilities
