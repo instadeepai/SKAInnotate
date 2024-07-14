@@ -1,21 +1,29 @@
 #!/usr/bin/env bash
 
-# Set variables
-PROJECT_ID="skai-project-388314"
-REGION="us-central1"
-SERVICE_NAME="skainnotate-service"
-IMAGE_NAME="skainnotate-image"
-REPO_NAME="skai-repo"
-TAG="latest"
+# Check if the correct number of arguments is provided
+if [ "$#" -ne 6 ]; then
+  echo "Usage: $0 <project_id> <region> <service_name> <image_name> <repo_name> <tag>"
+  exit 1
+fi
 
-# Build the Docker image
-# docker build --platform linux/amd64 --no-cache --progress=plain -t ${IMAGE_NAME}:${TAG} .
+# Set variables from arguments
+PROJECT_ID=$1
+REGION=$2
+SERVICE_NAME=$3
+IMAGE_NAME=$4
+REPO_NAME=$5
+TAG=$6
 
-# # Tag the Docker image
-# docker tag ${IMAGE_NAME}:${TAG} ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}:${TAG}
+# Example usage: 
+"""
+./deploy.sh 
+    my-gcp-project 
+    us-central1 
+    my-test-service 
+    skainnotate-image 
+    skai-repo latest
 
-# # Push the Docker image to Google Artifact Registry
-# docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}:${TAG}
+"""
 
 # Deploy the image to Cloud Run
 gcloud run deploy ${SERVICE_NAME} \
@@ -27,3 +35,4 @@ gcloud run deploy ${SERVICE_NAME} \
   --add-cloudsql-instances INSTANCE_CONNECTION_NAME
 
 echo "Deployment completed successfully!"
+
