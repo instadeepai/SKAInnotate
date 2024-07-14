@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Task Details</title>
+    <style>
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            font-family: Arial, sans-serif;
+        }
+
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            margin: 0;
+        }
+
+        .user-login-info {
+            text-align: right;
+        }
+
+        .dashboard-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .content-row {
+            display: flex;
+        }
+
+        .left-column {
+            flex: 2;
+            padding-right: 20px;
+        }
+
+        .right-column {
+            flex: 1;
+            border-left: 1px solid #ccc;
+            padding-left: 20px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px;
+        }
+
+        .controls {
+            text-align: center;
+        }
+
+        .radio-label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .navigation-buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .navigation-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .item-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .item-list li {
+            cursor: pointer;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .item-list li:hover {
+            background-color: #e9e9e9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="top-row">
+            <div class="header">
+                <h2>SKAInnotate - Annotator</h2>
+            </div>
+            <div class="user-login-info">
+                <button class="dashboard-button" onclick="openDashboard()">
+                    << Task Panel</button>
+                        <div>Username: <span id="username">{{user.username}}</span></div>
+                        <div>Email: <span id="email">{{user.email}}</span></div>
+            </div>
+        </div>
+        <div class="content-row">
+            <div class="left-column">
+                <div class="image-container">
+                    <h3>Task ID: <span id="task-id"></span></h3>
+                    <img id="image" src="" alt="Task Image" class="resizable-image">
+                </div>
+                <div class="controls">
+                    <span class="annotator-header"></span>
+                    <hr>
+                    <div class="label-options">
+                        <p>Labels:</p>
+                    </div>
+                    <button onclick="submitLabel()">Submit Label</button>
+                </div>
+                <div class="navigation-buttons">
+                    <button onclick="goToPreviousTask()">Previous</button>
+                    <button onclick="goToNextTask()">Next</button>
+                </div>
+            </div>
+            <div class="right-column">
+                <ul id="image-list" class="item-list">
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = [];
+        let currentIndex = {{ current_task_index }};
+        const task = {{ task | tojson | safe }};
+        const tasksJson = JSON.parse({{ tasks_json | tojson | safe }});
+        const userId = {{ user.user_id }};
+
+        // Ensure tasksJson is an array
+        if (Array.isArray(tasksJson)) {
+            tasks = tasksJson;
+        } else {
+            console.error('tasksJson is not an array:', tasksJson);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            populateTaskList();
+            if (tasks.length > 0) {
+                updateTaskDetails(tasks[currentIndex]);
+            }
+        });
+
+        function populateTaskList() {
+            const imageList = document.getElementById('image-list');
+            imageList.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = task.task_id;
+                listItem.onclick = () => loadImage(index);
+                imageList.appendChild(listItem);
+            });
+        }
+
+        async function updateTaskDetails(task) {
+            document.getElementById('task-id').textContent = task.task_id;
+            document.getElementById('image').src = task.image;
+
+            console.log('Updating task details:', task);
+            console.log('Image URL:', task.image);
+
+            try {
+                const response = await fetch(`/tasks/${task.task_id}/labels`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch labels');
+                }
+                const labels = await response.json();
+                const labelOptions = document.querySelector('.label-options');
+                labelOptions.innerHTML = '<p>Label Options:</p>';
+                labels.forEach((label, index) => {
+                    const labelDiv = document.createElement('div');
+                    labelDiv.className = 'label-item';
+                    labelDiv.innerHTML = `
+                        <label class="radio-label">
+                            <input type="radio" id="label${index + 1}" name="label" value="${label}">
+                            ${label}
+                        </label>
+                    `;
+                    labelOptions.appendChild(labelDiv);
+                });
+
+                const defaultLabelResponse = await fetch(`/tasks/${task.task_id}/default_label?user_id=${userId}`);
+                if (defaultLabelResponse.ok) {
+                    const defaultLabel = await defaultLabelResponse.json();
+                    document.querySelector(`input[name="label"][value="${defaultLabel.label}"]`).checked = true;
+                } else {
+                    console.log('No default label found for this task and annotator.');
+                }
+            } catch (error) {
+                console.error('Error fetching labels or default label:', error);
+            }
+        }
+
+        function loadImage(index) {
+            if (index >= 0 && index < tasks.length) {
+                currentIndex = index;
+                updateTaskDetails(tasks[currentIndex]);
+            }
+        }
+
+        function goToNextTask() {
+            if (currentIndex < tasks.length - 1) {
+                currentIndex++;
+                updateTaskDetails(tasks[currentIndex]);
+            }
+        }
+
+        function goToPreviousTask() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateTaskDetails(tasks[currentIndex]);
+            }
+        }
+
+        async function submitLabel() {
+            const selectedLabel = document.querySelector('input[name="label"]:checked').value;
+            const taskId = tasks[currentIndex].task_id;
+
+            try {
+                const response = await fetch(`/annotations/submit/label`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ task_id: taskId, label: selectedLabel, user_id: userId })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to submit label');
+                }
+
+                alert('Label submitted successfully!');
+            } catch (error) {
+                console.error('Error submitting label:', error);
+            }
+        }
+
+        function openDashboard() {
+            window.history.back();
+        }
+    </script>
+</body>
+
+</html>

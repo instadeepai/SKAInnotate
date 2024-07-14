@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 70%;
+            border-collapse: collapse;
+            margin: 25px auto;
+            font-size: 18px;
+            text-align: left;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr {
+            cursor: pointer;
+        }
+
+        .no-projects {
+            text-align: center;
+            font-size: 18px;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        .button-container,
+        .upload-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px auto;
+            max-width: 400px;
+            /* Adjusted to accommodate both buttons */
+        }
+
+        .button-group button,
+        .button-group a {
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            /* Ensure no underline for the link */
+        }
+
+        .back-button {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        .create-button {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .create-button:hover {
+            background-color: #218838;
+        }
+
+        .upload-container button {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .upload-container button:hover {
+            background-color: #0056b3;
+        }
+
+        .upload-container input {
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        .upload-container input:hover {
+            border-color: #007bff;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Projects</h1>
+
+    <div class="button-group">
+        <button onclick="window.location.href='/auth/role'" class="back-button">Back to Roles</button>
+        {% if role == 'admin' %}
+        <a href="/projects/create" class="create-button">Create New Project</a>
+        {% endif %}
+    </div>
+
+    {% if projects %}
+    <table>
+        <thead>
+            <tr>
+                <th>Project ID</th>
+                <th>Title</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr id="project-{{ project.project_id }}">
+                <td>{{ project.project_id }}</td>
+                <td>{{ project.project_title }}</td>
+                <td>{{ project.created_at }}</td>
+                <td>
+                    <a href="/projects/{{ project.project_id }}">View</a>
+                    {% if role == 'admin' %}
+                    <a href="/projects/{{ project.project_id }}/configurations/edit/">Edit</a>
+                    <button class="delete-button" data-project-id="{{ project.project_id }}"
+                        onclick="deleteProject(this)">Delete</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="no-projects">No projects available</p>
+    {% endif %}
+</body>
+
+</html>

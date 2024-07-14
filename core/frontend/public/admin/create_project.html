@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Project</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        textarea {
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .button-group button {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .save-button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .save-button:hover {
+            background-color: #218838;
+        }
+
+        .cancel-button {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .cancel-button:hover {
+            background-color: #c82333;
+        }
+
+        .back-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script>
+        async function createProject(event) {
+            event.preventDefault();  // Prevent the form from submitting the traditional way
+            const projectTitle = document.getElementById('projectTitle').value;
+            const projectDescription = document.getElementById('projectDescription').value || '';
+            const maxAnnotatorsPerTask = parseInt(document.getElementById('maxAnnotatorsPerTask').value, 10) || 1;
+            const completionDeadline = document.getElementById('completionDeadline').value;
+            const labels = document.getElementById('labels').value;
+
+            const completionDeadlineFormatted = completionDeadline ? completionDeadline + 'T00:00:00' : null;
+
+            try {
+                const response = await fetch('/projects/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        project_title: projectTitle,
+                        project_description: projectDescription,
+                        max_annotators_per_task: maxAnnotatorsPerTask,
+                        completion_deadline: completionDeadlineFormatted,
+                        labels: labels
+                    }),
+                });
+
+                if (response.ok) {
+                    alert('Project created successfully');
+                    window.location.href = '/projects/';  // Redirect to the projects list
+                } else {
+                    alert('Failed to create project');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('cancelButton').addEventListener('click', function () {
+                window.location.href = '/projects/';
+            });
+
+            document.getElementById('backButton').addEventListener('click', function () {
+                window.history.back();
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Create New Project</h1>
+        <form id="create-project-form" onsubmit="createProject(event)">
+            <label for="projectTitle">Project Title</label>
+            <input type="text" id="projectTitle" name="projectTitle" required>
+
+            <label for="projectDescription">Project Description</label>
+            <textarea id="projectDescription" name="projectDescription" rows="4"></textarea>
+
+            <label for="maxAnnotatorsPerTask">Max Annotators Per Task</label>
+            <input type="number" id="maxAnnotatorsPerTask" name="maxAnnotatorsPerTask" min="1" value="1">
+
+            <label for="completionDeadline">Completion Deadline</label>
+            <input type="date" id="completionDeadline" name="completionDeadline">
+
+            <label for="labels">String Labels</label>
+            <input type="text" id="labels" name="labels" required>
+            <p class="description">Enter labels as a comma-separated list (e.g., "Label 1, Label 2, Label 3")</p>
+
+            <div class="button-group">
+                <button type="submit" class="save-button">Create Project</button>
+                <button type="button" id="cancelButton" class="cancel-button">Cancel</button>
+                <button type="button" id="backButton" class="back-button">Back</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

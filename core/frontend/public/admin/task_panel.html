@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 70%;
+            border-collapse: collapse;
+            margin: 25px auto;
+            font-size: 18px;
+            text-align: left;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr {
+            cursor: pointer;
+        }
+
+        .no-tasks {
+            text-align: center;
+            font-size: 18px;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        .button-container,
+        .upload-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .button-container button,
+        .upload-container button {
+            padding: 10px 20px;
+            font-size: 14px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .button-container button {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .button-container button:hover {
+            background-color: #218838;
+        }
+
+        .upload-container button {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .upload-container button:hover {
+            background-color: #0056b3;
+        }
+
+        .upload-container input {
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        .upload-container input:hover {
+            border-color: #007bff;
+        }
+
+        .back-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        function goToTaskDetails(projectId, taskId) {
+            window.location.href = `/projects/${projectId}/tasks/${taskId}`;
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Task Panel</h1>
+    {% if tasks %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Image</th>
+            <th>Assigned Users</th>
+        </tr>
+        {% for task in tasks %}
+        <tr onclick="goToTaskDetails('{{ project_id }}', '{{ task.task_id }}')">
+            <td>{{ task.task_id }}</td>
+            <td>{{ task.image }}</td>
+            <td>
+                {% for user in task.assigned_users %}
+                {{ user.username }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p class="no-tasks">No tasks available</p>
+    {% endif %}
+    <div class="button-group">
+        <button onclick="window.location.href='/projects/{{ project_id }}/tasks/auto/assign-tasks'">Auto Assign
+            Tasks</button>
+        <button class="back-button" onclick="window.location.href='/projects/{{ project_id }}/'">Back</button>
+    </div>
+    <div class="upload-container">
+        <form action="/projects/{{ project_id }}/tasks/update-from-csv" method="post" enctype="multipart/form-data">
+            <input type="file" id="file" name="file" accept=".csv">
+            <button type="submit">Update from CSV</button>
+        </form>
+    </div>
+</body>
+
+</html>

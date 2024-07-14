@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        .admin-button {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 15px 25px;
+            font-size: 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .admin-button:hover {
+            background-color: #0056b3;
+        }
+
+        .admin-button:focus {
+            outline: none;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            .admin-button {
+                width: 100%;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Welcome to SKAInnotate</h2>
+
+        <div class="button-container">
+            <button class="admin-button" onclick="openNewPage()">Authenticate with Google</button>
+        </div>
+    </div>
+
+    <script>
+        function openNewPage() {
+            window.location.href = '/auth/authorize';
+        }
+    </script>
+</body>
+
+</html>

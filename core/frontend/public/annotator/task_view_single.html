@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annotator Task View</title>
+    <style>
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        img {
+            width: 100px;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Annotator Task View</h1>
+    {% if tasks %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Image</th>
+            <th>Metadata</th>
+            <th>Actions</th>
+        </tr>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.task_id }}</td>
+            <td><img src="{{ task.image_url }}" alt="Thumbnail"></td>
+            <td>
+                <p><strong>Path:</strong> {{ task.image_path }}</p>
+                <p><strong>Created At:</strong> {{ task.created_at }}</p>
+                <p><strong>Description:</strong> {{ task.description }}</p>
+            </td>
+            <td>
+                <button onclick="window.location.href='/annotate/{{ task.task_id }}'">Annotate</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No available tasks</p>
+    {% endif %}
+</body>
+
+</html>

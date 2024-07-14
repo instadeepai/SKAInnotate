@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .dashboard-container {
+            text-align: center;
+            margin: 30px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .button-container {
+            margin-bottom: 30px;
+        }
+
+        .back-button {
+            background-color: #6c757d;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+
+        .boxes-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .box {
+            background-color: #007bff;
+            color: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .box:hover {
+            background-color: #0056b3;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .export-container {
+            margin-top: 20px;
+        }
+
+        .export-container select,
+        .export-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .export-container select {
+            background-color: #fff;
+            border: 1px solid #ccc;
+        }
+
+        .export-container button {
+            background-color: #007bff;
+            color: #fff;
+            margin-left: 10px;
+        }
+
+        .export-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <h2>Admin Dashboard</h2>
+        <div class="button-container">
+            <button class="back-button" onclick="window.location.href='/projects/'">Back</button>
+        </div>
+        <div class="boxes-container">
+            <div class="box" onclick="navigateTo(`/projects/${project_id}/configurations`)">Project
+                Configurations</div>
+            <div class="box" onclick="navigateTo('/users/')">User Panel</div>
+            <div class="box" onclick="navigateTo(`/projects/${project_id}/tasks`)">Task Panel</div>
+            <div class="box" onclick="navigateTo(`/projects/${project_id}/annotations`)">Retrieve Annotations</div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch project_id from the environment or another source
+        const project_id = "{{ project_id }}";
+
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+    </script>
+</body>
+
+</html>

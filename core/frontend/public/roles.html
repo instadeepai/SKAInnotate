@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <style>
+        /* Reset some default styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        .blue-button {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 15px 25px;
+            font-size: 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            margin: 10px;
+            width: calc(100% - 20px);
+        }
+
+        .blue-button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .blue-button:focus {
+            outline: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            .blue-button {
+                width: calc(100% - 20px);
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Select Role</h2>
+        <div class="button-container">
+            <button class="blue-button" onclick="submitRole('admin')">Admin</button>
+            <button class="blue-button" onclick="submitRole('annotator')">Annotator</button>
+            <button class="blue-button" onclick="submitRole('reviewer')">Reviewer</button>
+        </div>
+    </div>
+
+    <script>
+        async function submitRole(role) {
+            try {
+                const response = await fetch(`/auth/verify/${role}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ role: role })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Role verification successful:', result);
+                    window.location.href = `/projects/`;
+                    // window.location.href = `roles/${role}/dashboard`;
+                } else {
+                    const result = await response.json();
+                    console.error('Role verification failed:', result);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>

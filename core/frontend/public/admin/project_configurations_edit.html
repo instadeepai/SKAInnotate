@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Project Configurations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        textarea {
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .button-group button {
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .save-button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .save-button:hover {
+            background-color: #218838;
+        }
+
+        .cancel-button {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .cancel-button:hover {
+            background-color: #c82333;
+        }
+
+        .back-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fetchedData = {
+                project_title: '{{ project.project_title }}',
+                project_description: '{{ project.project_description }}',
+                max_annotators_per_task: '{{ project_configurations.max_annotators_per_task }}',
+                completion_deadline: '{{ project_configurations.completion_deadline }}',
+                labels: '{{ project_configurations.labels }}'
+            };
+
+            function populateForm(data) {
+                document.getElementById('projectTitle').value = data.project_title || '';
+                document.getElementById('projectDescription').value = data.project_description || '';
+                document.getElementById('maxAnnotatorsPerTask').value = data.max_annotators_per_task || 1;
+                document.getElementById('completionDeadline').value = data.completion_deadline ? data.completion_deadline.split('T')[0] : ''; // Format to YYYY-MM-DD
+
+                // Directly use labels string from fetched data
+                document.getElementById('labels').value = data.labels || '';
+            }
+
+            populateForm(fetchedData);
+
+            document.getElementById('saveButton').addEventListener('click', function (event) {
+                event.preventDefault();
+
+                // Get the form data as a dictionary
+                const formData = {
+                    project_title: document.getElementById('projectTitle').value,
+                    project_description: document.getElementById('projectDescription').value,
+                    max_annotators_per_task: parseInt(document.getElementById('maxAnnotatorsPerTask').value, 10) || 1,
+                    completion_deadline: document.getElementById('completionDeadline').value ? document.getElementById('completionDeadline').value + 'T00:00:00' : null, // Add time part to match datetime format, allow null
+                    labels: document.getElementById('labels').value
+                };
+
+                // Convert dictionary to JSON
+                const jsonData = JSON.stringify(formData);
+
+                const project_id = '{{ project.project_id }}'; // Dynamically resolve project_id
+                fetch(`/projects/${project_id}/configurations/edit/`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: jsonData
+                }).then(response => {
+                    if (response.ok) {
+                        alert('Configurations saved successfully!');
+                        window.location.href = `/projects/${project_id}/configurations/`;
+                    } else {
+                        alert('Failed to save configurations');
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to save configurations');
+                });
+            });
+
+            document.getElementById('cancelButton').addEventListener('click', function () {
+                window.location.href = `/projects/{{ project.project_id }}/configurations/`;
+            });
+
+            document.getElementById('backButton').addEventListener('click', function () {
+                window.history.back();
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Edit Project Configurations</h1>
+        <form id="configForm">
+            <label for="projectTitle">Project Title</label>
+            <input type="text" id="projectTitle" name="projectTitle" required>
+
+            <label for="projectDescription">Project Description</label>
+            <textarea id="projectDescription" name="projectDescription" rows="4" required></textarea>
+
+            <label for="maxAnnotatorsPerTask">Max Annotators Per Task</label>
+            <input type="number" id="maxAnnotatorsPerTask" name="maxAnnotatorsPerTask" min="1" required>
+
+            <label for="completionDeadline">Completion Deadline</label>
+            <input type="date" id="completionDeadline" name="completionDeadline" required>
+
+            <label for="labels">String Labels</label>
+            <input type="text" id="labels" name="labels" required>
+            <p class="description">Enter labels as a comma-separated list (e.g., "Label 1, Label 2, Label 3")</p>
+
+            <div class="button-group">
+                <button type="submit" id="saveButton" class="save-button">Save</button>
+                <button type="button" id="cancelButton" class="cancel-button">Cancel</button>
+                <button type="button" id="backButton" class="back-button">Back</button>
+            </div>
+        </form>
+    </div>
+</body>
+
+</html>

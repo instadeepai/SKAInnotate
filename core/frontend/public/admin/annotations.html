@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task and Annotations Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 25px auto;
+            font-size: 18px;
+            text-align: left;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .button-container,
+        .button-group {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .button-container button,
+        .button-group button {
+            padding: 10px 20px;
+            font-size: 14px;
+            margin: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .button-container button {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .button-container button:hover {
+            background-color: #0056b3;
+        }
+
+        .export-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .export-container select,
+        .export-container button {
+            padding: 10px 15px;
+            font-size: 14px;
+            margin: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .export-container select {
+            background-color: #fff;
+            color: #333;
+        }
+
+        .export-container button {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .export-container button:hover {
+            background-color: #218838;
+        }
+
+        .no-tasks {
+            text-align: center;
+            font-size: 18px;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        .back-button {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Task and Annotations Panel</h1>
+    {% if tasks %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Image</th>
+            <th>Annotations</th>
+            <th>Review Actions</th>
+        </tr>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.task_id }}</td>
+            <td>{{ task.image }}</td>
+            <td>
+                {% if task.labels %}
+                <ul>
+                    {% for label in task.labels %}
+                    <li>{{ label }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                No annotations
+                {% endif %}
+            </td>
+            <td>
+                <button onclick="showDropdown('{{ task.task_id }}', 'assign')">Assign</button>
+                <button onclick="showDropdown('{{ task.task_id }}', 'unassign')">Unassign</button>
+                <button onclick="window.location.href='/remove_task/{{ task.task_id }}'">Remove</button>
+                <div id="dropdown-{{ task.task_id }}" class="hidden">
+                    <select
+                        onchange="assignReviewer('{{ task.task_id }}', this.value, this.getAttribute('data-action'))"
+                        data-action="">
+                        <option value="">Select Reviewer</option>
+                        {% for reviewer in reviewers %}
+                        <option value="{{ reviewer.user_id }}">{{ reviewer.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p class="no-tasks">No tasks available</p>
+    {% endif %}
+    <div class="button-group">
+        <button onclick="window.history.back()" class="back-button">Back</button>
+    </div>
+    <div class="export-container">
+        <form action="/tasks/export-annotations" method="post">
+            <select name="format" id="format">
+                <option value="csv">CSV</option>
+                <option value="json">JSON</option>
+                <option value="xml">XML</option>
+            </select>
+            <button type="submit">Export Annotations</button>
+        </form>
+    </div>
+    <script>
+
+        function showDropdown(taskId, action) {
+            var dropdown = document.getElementById('dropdown-' + taskId);
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                dropdown.querySelector('select').setAttribute('data-action', action);
+            } else {
+                dropdown.classList.add('hidden');
+            }
+        }
+
+        function assignReviewer(taskId, reviewerId, action) {
+            if (reviewerId) {
+                var url = '/' + action + '_task/' + taskId + '/' + reviewerId;
+                window.location.href = url;
+            }
+        }
+    </script>
+</body>
+
+</html>
