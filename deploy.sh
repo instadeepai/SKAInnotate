@@ -20,7 +20,6 @@ ENV_VARS_FILE=$5
 #     {REGION}-docker.pkg.dev/{PROJECT_ID}/{REPO_NAME}/{IMAGE_NAME}:{TAG} \
 #     {REGION} \
 #     {PROJECT_ID}:{REGION}:{INSTANCE_NAME} \
-#     {SERVICE_ACCOUNT_PATH} \
 #     {ENV_VAR_FILE}
 # """
 
