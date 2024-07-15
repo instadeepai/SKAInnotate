@@ -48,9 +48,11 @@ This part of the project involves setting up the necessary Google Cloud infrastr
     ```sh
     uvicorn setup.app.main:app --reload --port 8000
     ```
+### Project Setup
+1. **Set up Project**:
+   - Set Project ID and service account path. Service account must have sufficient permissions which are all included in the `Storage Admin` and `Cloud SQL Admin` roles. This will be used to access GCS bucket and Cloud SQL in the next steps.
 
 ### Database Setup
-
 1. **Set Up Cloud SQL**:
     - Navigate to the database setup form and provide the necessary details (instance name, region, database name, user, and password).
     - The script will create the Cloud SQL instance and the database if they do not already exist.
@@ -67,7 +69,7 @@ This part of the project involves setting up the necessary Google Cloud infrastr
 1. **Build and Push Container Image**:
     - Choose the build option (none, local, or cloud).
     - Provide the container image name.
-    - A container image will be built and pushed to Google Container Registry using docker locally, google builds submit or use an available container image from artifact registry.
+    - A container image will be built locally if build_option is `local` or built with `google builds submit` and pushed to Google Artifact Registry or use an available container image from artifact registry if build_option is set to `none`.
 
 ### Cloud Run Deployment
 
