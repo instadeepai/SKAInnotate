@@ -1,4 +1,5 @@
 import os
+import yaml
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -8,9 +9,6 @@ from google.oauth2 import service_account
 from google.api_core.exceptions import NotFound
 from googleapiclient.errors import HttpError
 from starlette.middleware.sessions import SessionMiddleware
-from dotenv import load_dotenv
-
-load_dotenv()  # Load environment variables from .env file
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key=os.urandom(24))
@@ -20,24 +18,26 @@ project_id = os.getenv("PROJECT_ID")
 service_account_file = os.getenv("SERVICE_ACCOUNT_FILE")
 credentials = None
 
-def write_env_variable(variable_name, data):
-    env_file = ".env"
-    if os.path.exists(env_file):
-        with open(env_file, "r") as file:
-            lines = file.readlines()
+def write_config_variable(variable_name, data):
+    config_file = "configs.yaml"
+    if os.path.exists(config_file):
+        with open(config_file, "r") as file:
+          config = yaml.safe_load(file)
     else:
-        lines = []
+        config = {}
 
-    with open(env_file, "w") as file:
-        variable_written = False
-        for line in lines:
-            if line.startswith(f"{variable_name}="):
-                file.write(f"{variable_name}={data}\n")
-                variable_written = True
-            else:
-                file.write(line)
-        if not variable_written:
-            file.write(f"{variable_name}={data}\n")
+    config[variable_name] = data
+
+    with open(config_file, "w") as file:
+        yaml.safe_dump(config, file)
+
+def get_config_variable(variable_name):
+    config_file = "configs.yaml"
+    if os.path.exists(config_file):
+        with open(config_file, "r") as file:
+            config = yaml.safe_load(file)
+            return config.get(variable_name)
+    return None
 
 def get_credentials():
     global credentials
@@ -68,8 +68,8 @@ async def get_project_details(project_id: str = Form(...), service_account_file:
         os.environ["PROJECT_ID"] = project_id
         os.environ["SERVICE_ACCOUNT_FILE"] = service_account_file
 
-        write_env_variable("PROJECT_ID", project_id)
-        write_env_variable("SERVICE_ACCOUNT_FILE", service_account_file)
+        write_config_variable("PROJECT_ID", project_id)
+        write_config_variable("SERVICE_ACCOUNT_FILE", service_account_file)
         return {"message": "Project setup verified", "next_step": "Bucket setup"}
     except NotFound:
         return {"error": "Project not found"}
@@ -82,6 +82,7 @@ async def setup_cloud_storage(bucket_name: str = Form(...)):
         client = get_storage_client()
         bucket = storage.Bucket(client, bucket_name)
         if bucket.exists():
+            write_config_variable("BUCKET_NAME", bucket_name)
             return {"message": "Bucket exists", "next_step": "Database setup"}
         else:
             return {"error": "Bucket not found"}
@@ -93,13 +94,13 @@ async def setup_cloud_sql(instance_name: str = Form(...), region: str = Form(...
                           database_name: str = Form(...), db_user: str = Form(...),
                           db_pass: str = Form(...)):
     sqladmin = get_sqladmin_client()
-    
-    write_env_variable("REGION", region)
-    write_env_variable("DB_USER", db_user)
-    write_env_variable("DB_PASS", db_pass)
-    write_env_variable("DB_NAME", database_name)
-    write_env_variable("DATABASE_NAME", database_name)
-    write_env_variable('INSTANCE_NAME', instance_name)
+
+    write_config_variable("REGION", region)
+    write_config_variable("DB_USER", db_user)
+    write_config_variable("DB_PASS", db_pass)
+    write_config_variable("DB_NAME", database_name)
+    write_config_variable("DATABASE_NAME", database_name)
+    write_config_variable('INSTANCE_NAME', instance_name)
 
     instance_body = {
         'name': instance_name,
@@ -115,6 +116,7 @@ async def setup_cloud_sql(instance_name: str = Form(...), region: str = Form(...
         if e.resp.status == 404:
             instance_exists = False
         else:
+            print("Error: ", str(e))
             return {"error": f"Failed to check instance existence: {str(e)}"}
 
     if not instance_exists:
@@ -151,8 +153,8 @@ async def setup_cloud_sql(instance_name: str = Form(...), region: str = Form(...
 @app.post("/setup-google-auth", response_class=JSONResponse)
 async def setup_google_auth(google_client_id: str = Form(...), google_client_secret: str = Form(...)):
     try:
-        write_env_variable("GOOGLE_CLIENT_ID", google_client_id)
-        write_env_variable("GOOGLE_CLIENT_SECRET", google_client_secret)
+        write_config_variable("GOOGLE_CLIENT_ID", google_client_id)
+        write_config_variable("GOOGLE_CLIENT_SECRET", google_client_secret)
         return {"message": "Google Authentication setup completed successfully.", "next_step": "Super user setup"}
     except Exception as e:
         return {"error": str(e)}
@@ -160,42 +162,42 @@ async def setup_google_auth(google_client_id: str = Form(...), google_client_sec
 @app.post("/setup-superuser", response_class=JSONResponse)
 async def setup_superuser(superuser_username: str = Form(...), superuser_email: str = Form(...)):
     try:
-        write_env_variable("SUPERUSER_USERNAME", superuser_username)
-        write_env_variable("SUPERUSER_EMAIL", superuser_email)
+        write_config_variable("SUPERUSER_USERNAME", superuser_username)
+        write_config_variable("SUPERUSER_EMAIL", superuser_email)
         return {"message": "Super user setup completed successfully.", "next_step": "Container image setup"}
     except Exception as e:
         return {"error": str(e)}
 
 @app.post("/setup-gcp-container", response_class=JSONResponse)
-async def setup_cloud_container(image: str = Form(...)):
-    try:
-        write_env_variable("IMAGE", image)
-        return {"message": "Container image setup successful", "next_step": "Cloud Run deployment"}
-    except Exception as e:
-        return {"error": str(e)}
+async def setup_cloud_container(container_image: str = Form(...), build_option: str = Form(...)):
+    if build_option not in ['none', 'local', 'cloud']:
+        return JSONResponse(status_code=400, content={"error": "Invalid build option."})
+
+    if build_option == 'local':
+        os.system(f"bash build.sh {container_image}")
+
+    elif build_option == 'cloud':
+        os.system(f"gcloud builds submit --tag {container_image} .")
+    
+    write_config_variable("CONTAINER_IMAGE", container_image)
+    return {"message": "GCP Container setup completed successfully.", "next_step": "Cloud Run deployment"}
 
 @app.post("/setup-cloud-run", response_class=JSONResponse)
-async def setup_cloud_run(service_name: str = Form(...)):
+async def setup_cloud_run(service_name: str = Form(...), region: str = Form(...)):
+    container_image = get_config_variable('CONTAINER_IMAGE')
+    project_id = get_config_variable("PROJECT_ID")
+    instance_name = get_config_variable('INSTANCE_NAME')
+    instance_connection_name = f"{project_id}:{region}:{instance_name}"
+
     try:
-        service = build('run', 'v1', credentials=get_credentials())
-        service_body = {
-            "apiVersion": "serving.knative.dev/v1",
-            "kind": "Service",
-            "metadata": {"name": service_name, "namespace": "default"},
-            "spec": {
-                "template": {
-                    "spec": {
-                        "containers": [{
-                            "image": f"gcr.io/{project_id}/{service_name}",
-                            "ports": [{"containerPort": 8080}]
-                        }]
-                    }
-                }
-            }
-        }
-        request = service.namespaces().services().create(parent=f"namespaces/{project_id}", body=service_body)
-        response = request.execute()
-        service_url = f"https://{service_name}-run.app"
+        os.system(f"bash deploy.sh " 
+                  f"{service_name} " 
+                  f"{container_image}  " 
+                  f"{region}  " +
+                  f"{instance_connection_name} " +
+                  'configs.yaml')
+        
+        service_url = f"Example URL: https://<service_name>-<hashing>-run.app"
         return {"message": "Deployment successful", "service_url": service_url}
     except Exception as e:
         return {"error": str(e)}

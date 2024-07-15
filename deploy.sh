@@ -1,38 +1,34 @@
 #!/usr/bin/env bash
 
-# Check if the correct number of arguments is provided
-if [ "$#" -ne 6 ]; then
-  echo "Usage: $0 <project_id> <region> <service_name> <image_name> <repo_name> <tag>"
+# Checking if all arguments are provided
+if [ "$#" -ne 5 ]; then
+  echo "Usage: $0 <service_name> <image> <region> <sql_instance_connection_name> <env_vars_file>"
   exit 1
 fi
 
 # Set variables from arguments
-PROJECT_ID=$1
-REGION=$2
-SERVICE_NAME=$3
-IMAGE_NAME=$4
-REPO_NAME=$5
-TAG=$6
+SERVICE_NAME=$1
+IMAGE=$2
+REGION=$3
+SQL_INSTANCE_CONNECTION_NAME=$4
+ENV_VARS_FILE=$5
 
 # Example usage: 
-"""
-./deploy.sh 
-    my-gcp-project 
-    us-central1 
-    my-test-service 
-    skainnotate-image 
-    skai-repo latest
-
-"""
+# """
+# ./deploy.sh \
+#     my-service \
+#     {REGION}-docker.pkg.dev/{PROJECT_ID}/{REPO_NAME}/{IMAGE_NAME}:{TAG} \
+#     {REGION} \
+#     {PROJECT_ID}:{REGION}:{INSTANCE_NAME} \
+#     {SERVICE_ACCOUNT_PATH} \
+#     {ENV_VAR_FILE}
+# """
 
 # Deploy the image to Cloud Run
 gcloud run deploy ${SERVICE_NAME} \
-  --image ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}:${TAG} \
-  --platform managed \
-  --region ${REGION} \
+  --image=${IMAGE} \
+  --platform=managed \
+  --region=${REGION} \
   --allow-unauthenticated \
-  --port 8080 \
-  --add-cloudsql-instances INSTANCE_CONNECTION_NAME
-
-echo "Deployment completed successfully!"
-
+  --add-cloudsql-instances=${SQL_INSTANCE_CONNECTION_NAME} \
+  --env-vars-file=${ENV_VARS_FILE}

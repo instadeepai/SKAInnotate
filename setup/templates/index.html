@@ -142,7 +142,7 @@
           url = '/setup-superuser';
           break;
         case 6:
-          url = '/setup-cloud-container';
+          url = '/setup-gcp-container';
           break;
         case 7:
           url = '/setup-cloud-run';
@@ -300,8 +300,17 @@
         <h3>Step 6: Container Image Setup</h3>
         <p>Enter the details for your container image.</p>
         <div class="form-group">
-          <label for="image">Container Image:</label>
-          <input type="text" id="image" name="image" required>
+          <label for="container_image">Container Image:</label>
+          <input type="text" id="container_image" name="container_image" required>
+        </div>
+        <div class="form-group">
+          <label for="build_option">Build Option:</label>
+          <select id="build_option" name="build_option" required>
+            <option value="">Select Build Option</option>
+            <option value="none">None</option>
+            <option value="local">Build Locally</option>
+            <option value="cloud">Cloud Build</option>
+          </select>
         </div>
         <div class="button-group">
           <button type="button" onclick="goBack(6)">Back</button>
@@ -309,6 +318,7 @@
           <button type="button" id="next-6" class="hidden" onclick="nextStep(6)">Next</button>
         </div>
       </div>
+
       <!-- Step 7: Cloud Run Deployment -->
       <div id="step-7" class="form-step hidden">
         <h3>Step 7: Cloud Run Deployment</h3>

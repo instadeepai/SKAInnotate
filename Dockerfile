@@ -13,14 +13,11 @@ RUN pip install -v --no-cache-dir -r /app/requirements.txt
 # Copy the backend and frontend directories into the container
 COPY core/backend /app/backend
 COPY core/frontend /app/frontend
-COPY client_secret.json /app/client_secret.json
-COPY credentials.json /app/credentials.json
 
 # Set the environment variables
 ENV PYTHONPATH=/app/backend:/app/frontend
 ENV PATH=/root/.local/bin:$PATH
-ENV GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
-ENV CLIENT_SECRETS_FILE=/app/client_secret.json
+
 ENV HOST=0.0.0.0
 ENV PORT=8080
 
