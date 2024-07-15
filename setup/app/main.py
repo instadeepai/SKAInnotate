@@ -197,7 +197,7 @@ async def setup_cloud_run(service_name: str = Form(...), region: str = Form(...)
                   f"{instance_connection_name} " +
                   'configs.yaml')
         
-        service_url = f"Example URL: https://<service_name>-<hashing>-run.app"
+        service_url = f"Example URL: https://<service-name>-<hashing>-<region>.a.run.app"
         return {"message": "Deployment successful", "service_url": service_url}
     except Exception as e:
         return {"error": str(e)}

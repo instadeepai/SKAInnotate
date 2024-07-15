@@ -86,9 +86,13 @@ The web application is designed to facilitate data annotation tasks. It includes
 
 1. **Access the Application**:
     - Open a web browser and navigate to the url provided by cloud run.
-    format: https://<service_name>-<hashing>-run.app"
+    format: `https://<service-name>-<hashing>-<region>.a.run.app`
+2. **Update OAuth authorized redirect URI**
+   - Visit the GCP OAuth settings for the application and add a redirect URI to the Authorized redirect URIs settings. The redirect URI should look like this; `https://<service-name>-<hashing>-<region>.a.run.app/auth/oauth2callback`.
+   For instance `https://skainnotate-test-kse2o5g36a-uc.a.run.app/auth/oauth2callback` in the case of the sample deployment app below.
 
-2. **Roles and Functionalities**:
+
+3. **Roles and Functionalities**:
     - **Admins**: Can create projects and set configurations, add/remove users, upload tasks, assign tasks, and retrieve annotations.
     - **Annotators**: Receive tasks, annotate data, and submit annotations.
     - **Reviewers**: Review submitted annotations and provide feedback.
