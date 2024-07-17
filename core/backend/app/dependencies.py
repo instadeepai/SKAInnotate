@@ -38,7 +38,10 @@ def get_current_user(request: Request):
 def get_current_role(request: Request):
   role = request.cookies.get("current_role")
   if not role:
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    raise HTTPException(
+      status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+      headers={"Location": "/auth/login"}
+    )
   return role
 
 def set_user_session(request: Request, user_info: dict):

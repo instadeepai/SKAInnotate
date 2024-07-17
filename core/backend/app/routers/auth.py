@@ -30,8 +30,8 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app and router
 app = FastAPI()
 router = APIRouter()
-templates = Jinja2Templates(directory="../frontend/public")
-router.mount("/static", StaticFiles(directory="../frontend/public"), name="static")
+templates = Jinja2Templates(directory="/app/frontend/public")
+router.mount("/static", StaticFiles(directory="/app/frontend/public"), name="static")
 
 # OAuth 2.0 configuration
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")

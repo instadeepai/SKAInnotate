@@ -15,10 +15,10 @@ import app.crud as crud
 import app.schema as schema
 import app.model as model
 from app.database import get_db
-from app.dependencies import get_current_role
+from app.dependencies import get_current_role, get_current_user
 
 router = APIRouter()
-templates = Jinja2Templates(directory="../frontend/public")
+templates = Jinja2Templates(directory="/app/frontend/public")
 
 @router.post("/projects/{project_id}/tasks", response_model=schema.Task)
 def create_task(project_id: int, task: schema.TaskCreate, db: Session = Depends(get_db)):
@@ -85,8 +85,8 @@ async def get_task_details(request: Request,
         }
     })
   else:
-    user_info = request.session.get("user")
-    user_email = user_info.get("email")
+    user_info = get_current_user(request)
+    user_email = user_info["email"]
     user = crud.get_user_by_email_and_role(db, user_email=user_email, role_name=role)
     all_tasks = crud.get_tasks_in_project(db, project_id)
     task_dict = {

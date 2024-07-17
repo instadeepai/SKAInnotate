@@ -9,7 +9,7 @@ import app.schema as schemas
 from app.database import get_db
 
 router = APIRouter()
-templates = Jinja2Templates(directory="../frontend/public")
+templates = Jinja2Templates(directory="/app/frontend/public")
 
 @router.get("/add-remove-user", response_model=None)
 def add_remove_user(request: Request, db: Session = Depends(get_db)):

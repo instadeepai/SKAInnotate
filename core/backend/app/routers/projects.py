@@ -9,7 +9,7 @@ from app.database import get_db
 from app.dependencies import get_current_role, get_current_user
 
 router = APIRouter()
-templates = Jinja2Templates(directory="../frontend/public")
+templates = Jinja2Templates(directory="/app/frontend/public")
 
 @router.post("/create", response_model=schemas.Project)
 def create_project(project: schemas.ProjectCreate, db: Session = Depends(get_db)):
