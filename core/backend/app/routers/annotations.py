@@ -6,7 +6,7 @@ from typing import List
 import app.crud as crud
 import app.schema as schemas
 from app.database import get_db
-
+from app.dependencies import get_current_user
 router = APIRouter()
 templates = Jinja2Templates(directory="/app/frontend/public")
 
@@ -23,7 +23,8 @@ def read_annotation(annotation_id: int, db: Session = Depends(get_db)):
 
 @router.get("/task/{task_id}", response_model=bool)
 def read_annotation_by_user(request: Request, task_id: str, db: Session = Depends(get_db)):
-  user_info = request.session.get("user")
+  user_info = get_current_user(request)
+
   if not user_info:
     raise HTTPException(status_code=401, detail="User not authenticated")
   

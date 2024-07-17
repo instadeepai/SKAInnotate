@@ -13,6 +13,7 @@ from app.model import (User,
                       Review,
                       AssignedTask,
                       Project,
+                      user_tasks,
                       ProjectConfigurations,
                       user_roles)
 from app.assignment import round_robin_algorithm
@@ -133,12 +134,31 @@ def assign_role_to_user(db: Session, role_name: str, user_name: Optional[str] = 
       user.roles.append(role)
       db.commit()
 
+def unassign_role_from_user(db: Session, role_name: str, user_name: Optional[str] = None, user_email: Optional[str] = None):
+  user = db.query(User).filter(User.email == user_email, User.username == user_name).first()
+  role = db.query(Role).filter(Role.role_name == role_name).first()
+
+  if user is None:
+    raise ValueError(f"User with email {user_email} and username {user_name} not found")
+
+  if role is None:
+    raise ValueError(f"Role {role_name} not found")
+
+  if role in user.roles:
+    user.roles.remove(role)
+    db.commit()
+  if not user.roles:
+    db.delete(user)
+    db.commit()
+  # else:
+  #   raise ValueError(f"User does not have role {role_name}")
+    
 def assign_roles_to_user(db: Session, role_names: List[str], user: User):
   if user:
     for role_name in role_names:
       role = db.query(Role).filter(Role.role_name == role_name).first()
       if role and role not in user.roles:
-          user.roles.append(role)
+        user.roles.append(role)
     db.commit()
 
 def get_admin(db: Session):
@@ -149,6 +169,14 @@ def get_annotators(db: Session):
 
 def get_reviewers(db: Session):
   return db.query(User).join(User.roles).filter(Role.role_name == schema.UserRole.reviewer).all()
+
+def get_reviewers_by_task(db: Session, task_id):
+  return (db.query(User)
+          .join(user_tasks)
+          .join(Role)
+          .filter(user_tasks.c.task_id == task_id)
+          .filter(Role.role_name == schema.UserRole.reviewer)
+          .all())
 
 # Role CRUD operations
 def create_role(db: Session, role_name: str) -> Role:
@@ -167,7 +195,7 @@ def get_roles(db: Session, skip: int = 0, limit: int = 100) -> List[Role]:
 def update_role(db: Session, role_id: int, role_name: str) -> Optional[Role]:
   role = get_role(db, role_id)
   if role is None:
-      return None
+    return None
   role.role_name = role_name
   db.commit()
   db.refresh(role)
@@ -402,6 +430,13 @@ def get_assigned_tasks_by_type(db: Session, user_id: int, assignment_type: schem
   return db.query(Task).join(AssignedTask).filter(
       AssignedTask.user_id == user_id,
       AssignedTask.assignment_type == assignment_type
+  ).all()
+
+def get_assigned_tasks_by_type_and_project(db: Session, user_id: int, assignment_type: schema.AssignmentType, project_id: int):
+  return db.query(Task).join(AssignedTask).filter(
+      AssignedTask.user_id == user_id,
+      AssignedTask.assignment_type == assignment_type,
+      Task.project_id == project_id
   ).all()
 
 def get_assigned_tasks(db: Session, user_id: int) -> List[AssignedTask]:

@@ -100,7 +100,6 @@
                     const result = await response.json();
                     console.log('Role verification successful:', result);
                     window.location.href = `/projects/`;
-                    // window.location.href = `roles/${role}/dashboard`;
                 } else {
                     const result = await response.json();
                     console.error('Role verification failed:', result);

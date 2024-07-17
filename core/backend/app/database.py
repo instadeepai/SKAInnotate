@@ -39,7 +39,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 if not all([DB_USER, DB_PASS, DB_NAME]):
   raise ValueError("Missing required environment variables for database configuration.")
 
-connector = Connector(refresh_strategy="lazy")
+connector = Connector()
 
 def db_configs(username: str, database: str):
   return {
@@ -50,10 +50,10 @@ def db_configs(username: str, database: str):
 def add_initial_roles(db: Session):
   roles = ["admin", "annotator", "reviewer"]
   for role_name in roles:
-      existing_role = db.query(Role).filter_by(role_name=role_name).first()
-      if not existing_role:
-        role = Role(role_name=role_name)
-        db.add(role)
+    existing_role = db.query(Role).filter_by(role_name=role_name).first()
+    if not existing_role:
+      role = Role(role_name=role_name)
+      db.add(role)
   db.commit()
 
 def init_admin(db: Session):

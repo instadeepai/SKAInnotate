@@ -9,12 +9,13 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.requests import Request
 from sqlalchemy.orm import Session
+from fastapi.responses import JSONResponse
 
 import app.crud as crud
 import app.schema as schema
 import app.model as model
 from app.database import get_db
-from app.dependencies import get_current_role
+from app.dependencies import get_current_role, get_current_user
 
 router = APIRouter()
 templates = Jinja2Templates(directory="/app/frontend/public")
@@ -84,8 +85,8 @@ async def get_task_details(request: Request,
         }
     })
   else:
-    user_info = request.session.get("user")
-    user_email = user_info.get("email")
+    user_info = get_current_user(request)
+    user_email = user_info["email"]
     user = crud.get_user_by_email_and_role(db, user_email=user_email, role_name=role)
     all_tasks = crud.get_tasks_in_project(db, project_id)
     task_dict = {
@@ -132,17 +133,25 @@ async def auto_assign_task(project_id: int, db: Session = Depends(get_db)):
   return RedirectResponse(url=f'/projects/{project_id}/tasks', status_code=303)
 
 # Assign Task Endpoint
-@router.get("/assign_task/{task_id}/{reviewer_id}", response_class=HTMLResponse)
-async def assign_task(task_id: str, db: Session = Depends(get_db)):
-  # TODO: will implement assignment logic
-  return RedirectResponse(url='admin/task_panel', status_code=303)
+@router.get("/assign_task/{task_id}/{reviewer_id}", response_class=JSONResponse)
+async def assign_task(task_id: str, reviewer_id: int, db: Session = Depends(get_db)):
+  try:
+      # Implement assignment logic
+    crud.assign_task(db, task_id=task_id, user_id=reviewer_id, assignment_type=schema.AssignmentType.review)
+    return {"message": "Task assigned successfully"}
+  except Exception as e:
+    return JSONResponse(status_code=400, content={"message": str(e)})
 
 # Unassign Task Endpoint
-@router.get("/unassign_task/{task_id}/{reviewer_id}", response_class=HTMLResponse)
-async def unassign_task(task_id: str, db: Session = Depends(get_db)):
-  # TODO: Implement unassign logic
-  return RedirectResponse(url='admin/task_panel', status_code=303)
-
+@router.get("/unassign_task/{task_id}/{reviewer_id}", response_class=JSONResponse)
+async def unassign_task(task_id: str, reviewer_id: int, db: Session = Depends(get_db)):
+  try:
+    # Implement unassignment logic
+    crud.unassign_task(db, task_id=task_id, user_id=reviewer_id)
+    return {"message": "Task unassigned successfully"}
+  except Exception as e:
+    return JSONResponse(status_code=400, content={"message": str(e)})
+    
 # Remove Task Endpoint
 @router.get("/remove_task/{task_id}", response_class=HTMLResponse)
 async def remove_task(task_id: str, db: Session = Depends(get_db)):
