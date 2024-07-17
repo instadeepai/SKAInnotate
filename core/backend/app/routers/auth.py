@@ -1,6 +1,6 @@
 import os
 import logging
-from fastapi import APIRouter, Depends, Request, HTTPException, status
+from fastapi import APIRouter, Depends, Request, HTTPException, status, FastAPI
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -9,7 +9,10 @@ from requests_oauthlib import OAuth2Session
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from dotenv import load_dotenv
+from jose import JWTError, jwt
+from datetime import datetime, timedelta
 
+from app.dependencies import get_current_user, create_access_token, set_user_role, get_current_role
 from app.schema import UserRole
 from app.crud import get_user_by_email_and_role
 from app.database import get_db
@@ -24,10 +27,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Initialize FastAPI router and templates
+# Initialize FastAPI app and router
+app = FastAPI()
 router = APIRouter()
-templates = Jinja2Templates(directory="/app/frontend/public")
-router.mount("/static", StaticFiles(directory="/app/frontend/public"), name="static")
+templates = Jinja2Templates(directory="../frontend/public")
+router.mount("/static", StaticFiles(directory="../frontend/public"), name="static")
 
 # OAuth 2.0 configuration
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -36,6 +40,11 @@ REDIRECT_URI = os.getenv("REDIRECT_URI", "http://localhost:8000/oauth2callback")
 AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo"
+
+# JWT configuration
+SECRET_KEY = os.getenv("SECRET_KEY", "mysecretkey")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Allow OAuth2 transport in an insecure environment
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -73,22 +82,22 @@ async def oauth2callback(request: Request):
   """Handle the OAuth 2.0 callback and fetch user information."""
   state = request.cookies.get("state")
   if not state:
-    logger.warning("Invalid state parameter.")
-    raise HTTPException(status_code=400, detail="Invalid state parameter.")
+      logger.warning("Invalid state parameter.")
+      raise HTTPException(status_code=400, detail="Invalid state parameter.")
 
   try:
-    token = oauth.fetch_token(TOKEN_URL, client_secret=GOOGLE_CLIENT_SECRET, authorization_response=str(request.url))
-    logger.info("Token fetched successfully.")
+      token = oauth.fetch_token(TOKEN_URL, client_secret=GOOGLE_CLIENT_SECRET, authorization_response=str(request.url))
+      logger.info("Token fetched successfully.")
   except Exception as e:
-    logger.error(f"Error fetching token: {e}")
-    raise HTTPException(status_code=400, detail=f"Error fetching token: {e}")
+      logger.error(f"Error fetching token: {e}")
+      raise HTTPException(status_code=400, detail=f"Error fetching token: {e}")
 
   try:
-    idinfo = id_token.verify_oauth2_token(token["id_token"], google_requests.Request(), GOOGLE_CLIENT_ID)
-    logger.info("ID token verified successfully.")
+      idinfo = id_token.verify_oauth2_token(token["id_token"], google_requests.Request(), GOOGLE_CLIENT_ID)
+      logger.info("ID token verified successfully.")
   except Exception as e:
-    logger.error(f"Error verifying ID token: {e}")
-    raise HTTPException(status_code=500, detail=f"Error verifying ID token: {e}")
+      logger.error(f"Error verifying ID token: {e}")
+      raise HTTPException(status_code=500, detail=f"Error verifying ID token: {e}")
 
   # Get user's Google Account info
   user_info = {
@@ -97,37 +106,47 @@ async def oauth2callback(request: Request):
       'name': idinfo.get('name'),
       'picture': idinfo.get('picture')
   }
-  request.session["user"] = user_info
   
-  logger.info(f"User info fetched: {user_info}")
-
-  # Redirect to the select role page
+  access_token = create_access_token(data={"user_info": user_info})
   response = RedirectResponse(request.url_for('select_user_role'))
+  response.set_cookie("access_token", access_token, httponly=True, secure=True)
+
+  logger.info(f"User info fetched: {user_info}")
   logger.info("Redirecting to the select user role page.")
   return response
 
 @router.get("/role", response_class=HTMLResponse)
-async def select_user_role(request: Request):
+async def select_user_role(request: Request, user_info: dict = Depends(get_current_user)):
   """Render the page for selecting a user role."""
   logger.info("Rendering the role selection page.")
-  return templates.TemplateResponse("roles.html", {"request": request})
+  return templates.TemplateResponse("roles.html", {"request": request, "user_info": user_info})
 
 @router.post("/verify/{role}", response_class=JSONResponse)
-async def verify_role(request: Request, role: UserRole, db: Session = Depends(get_db)):
+async def verify_role(request: Request, role: UserRole, db: Session = Depends(get_db), user_info: dict = Depends(get_current_user)):
   """Verify the user role and respond with success or failure."""
   selected_role = role.name
-  user_info = request.session.get("user")
-  if not user_info:
-    logger.warning("User not authenticated.")
-    raise HTTPException(status_code=401, detail="User not authenticated")
-
   user_email = user_info.get("email")
+
   user = get_user_by_email_and_role(db, user_email, selected_role)
-  logger.info(f"Current User info: {user_info}")
   if not user:
-    logger.warning(f"Role '{selected_role}' not assigned to user '{user_email}'.")
-    raise HTTPException(status_code=403, detail="Role not assigned to user")
-  
-  request.session["current_role"] = selected_role
+      raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Role not assigned to user")
+
+  response = JSONResponse(content={"message": "Role verification successful", "user_info": user_info})
+  response.set_cookie("current_role", selected_role, httponly=True, secure=True)
+  access_token = create_access_token(data={"user_info": user_info, "current_role": selected_role})
+  response.set_cookie("access_token", access_token, httponly=True, secure=True)
+
   logger.info(f"Role '{selected_role}' verified for user '{user_email}'.")
-  return JSONResponse(content={"message": "Role verification successful", "user_info": user_info})
+  return response
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+  if exc.status_code == status.HTTP_401_UNAUTHORIZED:
+      return RedirectResponse(url='/login')
+  return JSONResponse(
+      status_code=exc.status_code,
+      content={"detail": exc.detail},
+  )
+
+# Add the router to the app
+app.include_router(router)

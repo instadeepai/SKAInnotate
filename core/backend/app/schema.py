@@ -83,6 +83,8 @@ class User(UserBase):
   class Config:
     from_attributes = True
 
+class UserRetrieve(UserBase):
+  user_id: int
 # Task models
 class TaskBase(BaseModel):
   task_id: str

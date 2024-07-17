@@ -2,7 +2,7 @@ import os
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
-
+from jose import JWTError, jwt
 from app.routers import (auth, 
                       users, 
                       tasks, 

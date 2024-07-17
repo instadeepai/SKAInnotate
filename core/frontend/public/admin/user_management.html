@@ -136,7 +136,7 @@
             const roles = Array.from(document.getElementById('roles').selectedOptions).map(option => option.value);
 
             try {
-                const response = await fetch('/users/add', {
+                const response = await fetch('/users/add/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -155,15 +155,17 @@
         }
 
         async function removeUser() {
+            const username = document.getElementById('username').value;
             const email = document.getElementById('email').value;
+            const roles = Array.from(document.getElementById('roles').selectedOptions).map(option => option.value);
 
             try {
-                const response = await fetch('/users/remove', {
+                const response = await fetch('/users/remove/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ email }),
+                    body: JSON.stringify({ username, email, roles }),
                 });
 
                 if (response.ok) {

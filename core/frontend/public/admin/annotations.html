@@ -150,9 +150,6 @@
                         onchange="assignReviewer('{{ task.task_id }}', this.value, this.getAttribute('data-action'))"
                         data-action="">
                         <option value="">Select Reviewer</option>
-                        {% for reviewer in reviewers %}
-                        <option value="{{ reviewer.user_id }}">{{ reviewer.username }}</option>
-                        {% endfor %}
                     </select>
                 </div>
             </td>
@@ -176,21 +173,65 @@
         </form>
     </div>
     <script>
-
-        function showDropdown(taskId, action) {
+        async function showDropdown(taskId, action) {
             var dropdown = document.getElementById('dropdown-' + taskId);
             if (dropdown.classList.contains('hidden')) {
                 dropdown.classList.remove('hidden');
                 dropdown.querySelector('select').setAttribute('data-action', action);
+
+                // Fetch reviewers dynamically based on action
+                try {
+                    let response;
+                    if (action === 'unassign') {
+                        response = await fetch(`/users/reviewers/${taskId}`);
+                    } else {
+                        response = await fetch('/users/reviewers/');
+                    }
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const reviewers = await response.json();
+
+                    // Populate dropdown with reviewers
+                    const select = dropdown.querySelector('select');
+                    select.innerHTML = '<option value="">Select Reviewer</option>'; // Reset options
+                    reviewers.forEach(reviewer => {
+                        const option = document.createElement('option');
+                        option.value = reviewer.user_id;
+                        option.textContent = reviewer.username;
+                        select.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching reviewers:', error);
+                }
             } else {
                 dropdown.classList.add('hidden');
             }
         }
 
-        function assignReviewer(taskId, reviewerId, action) {
+        async function assignReviewer(taskId, reviewerId, action) {
             if (reviewerId) {
                 var url = '/' + action + '_task/' + taskId + '/' + reviewerId;
-                window.location.href = url;
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'GET', // or 'POST' if your endpoint requires it
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const result = await response.json();
+                    console.log('Task assigned successfully:', result);
+                    // Optionally update the UI to reflect the assignment
+                } catch (error) {
+                    console.error('Error assigning task:', error);
+                }
             }
         }
     </script>

@@ -8,7 +8,7 @@ import app.schema as schemas
 from app.database import get_db
 
 router = APIRouter()
-templates = Jinja2Templates(directory="/app/frontend/public")
+templates = Jinja2Templates(directory="../frontend/public")
 
 @router.post("/annotations/submit/label", response_model=schemas.Annotation)
 def create_annotation(annotation: schemas.AnnotationCreate, db: Session = Depends(get_db)):
