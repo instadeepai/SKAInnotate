@@ -133,7 +133,7 @@
     <div class="button-group">
         <button onclick="window.location.href='/auth/role'" class="back-button">Back to Roles</button>
         {% if role == 'admin' %}
-        <a href="/projects/create" class="create-button">Create New Project</a>
+        <a href="/projects/create-project-form" class="create-button">Create New Project</a>
         {% endif %}
     </div>
 
@@ -154,9 +154,9 @@
                 <td>{{ project.project_title }}</td>
                 <td>{{ project.created_at }}</td>
                 <td>
-                    <a href="/projects/{{ project.project_id }}">View</a>
+                    <a href="/projects/{{ project.project_id }}/dashboard">View</a>
                     {% if role == 'admin' %}
-                    <a href="/projects/{{ project.project_id }}/configurations/edit/">Edit</a>
+                    <a href="/projects/{{ project.project_id }}/edit-page">Edit</a>
                     <button class="delete-button" data-project-id="{{ project.project_id }}"
                         onclick="deleteProject(this)">Delete</button>
                     {% endif %}

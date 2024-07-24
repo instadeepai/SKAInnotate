@@ -1,10 +1,10 @@
 import csv
 import json
-from typing import List
+from typing import List, Dict
 import pandas as pd
 from io import StringIO, BytesIO
 import xml.etree.ElementTree as ET
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.requests import Request
@@ -62,49 +62,125 @@ def read_tasks(request: Request, project_id: int, db: Session = Depends(get_db))
   return templates.TemplateResponse("admin/task_panel.html", 
                                     {"request": request, "tasks": tasks, "project_id": project_id})
 
-# Get Task Details Endpoint
 @router.get("/projects/{project_id}/tasks/{task_id}", response_class=HTMLResponse)
-async def get_task_details(request: Request, 
-                           project_id: int, 
-                           task_id: str, 
-                           db: Session = Depends(get_db), 
+async def render_task_page(request: Request,
+                           project_id: int,
+                           task_id: str,
                            role: str = Depends(get_current_role)):
+    return templates.TemplateResponse(f"{role}/task_single.html", {
+        "request": request,
+        "task_id": task_id,
+        "project_id": project_id,
+    })
+
+@router.get("/api/projects/{project_id}/tasks/{task_id}")
+async def get_task_details(request: Request,
+                          project_id: int,
+                          task_id: str,
+                          db: Session = Depends(get_db),
+                          role: str = Depends(get_current_role)):
   task = crud.get_task(db, task_id=task_id)
   if not task:
     raise HTTPException(status_code=404, detail="Task not found")
 
   image_url = task.image.replace("gs://", "https://storage.cloud.google.com/")
-  if role == schema.UserRole.admin:
-    users_assigned_to_task = crud.get_users_assigned_to_task(db, task_id=task_id, project_id=project_id)
-    return templates.TemplateResponse("admin/task_single.html", {
-        "request": request,
-        "task": {
-            "task_id": task.task_id,
-            "image": image_url,
-            "assigned_users": [crud.get_user(db, user.user_id) for user in users_assigned_to_task]
-        }
-    })
-  else:
-    user_info = get_current_user(request)
-    user_email = user_info["email"]
-    user = crud.get_user_by_email_and_role(db, user_email=user_email, role_name=role)
-    all_tasks = crud.get_tasks_in_project(db, project_id)
-    task_dict = {
+  response_data = {
       "task_id": task.task_id,
       "image": image_url,
-    }
-    current_task_index = all_tasks.index(task)
+  }
+
+  if role == schema.UserRole.admin:
+    users_assigned_to_task = crud.get_users_assigned_to_task(db, task_id=task_id, project_id=project_id)
+    response_data["assigned_users"] = [crud.get_user(db, user.user_id) for user in users_assigned_to_task]
+    return JSONResponse(content=response_data)
+  else:
+    user_info = get_current_user(request)
+    user_id = user_info["user_id"]
+    user = crud.get_user(db, user_id)
+
+    all_assigned_tasks = crud.get_assigned_tasks_by_type_and_project(db,
+                              user_id=user_id, assignment_type=schema.RoleToAssignment[role].value, project_id=project_id)
+    current_task_index = next((i for i, t in enumerate(all_assigned_tasks) if t.task_id == task_id), -1)
     all_tasks_dict = [
-      {"task_id": t.task_id, "image": t.image.replace("gs://", "https://storage.cloud.google.com/")} for t in all_tasks]
-
-    return templates.TemplateResponse("annotator/task_single.html", {
-        "request": request,
-        "task": task_dict,
-        "tasks_json": json.dumps(all_tasks_dict),
+        {"task_id": t.task_id, "image": t.image.replace("gs://", "https://storage.cloud.google.com/")} for t in all_assigned_tasks
+    ]
+    response_data.update({
+        "tasks_json": all_tasks_dict,
         "current_task_index": current_task_index,
-        "user": user
+        "user": {
+            "user_id": user.user_id,
+            "username": user.username,
+            "email": user.email
+        }
     })
+    return JSONResponse(content=response_data)
 
+@router.get("/tasks/{task_id}/is_labeled")
+async def is_task_labeled(task_id: str, user_id: int, task_type: str, db: Session = Depends(get_db)):
+  if task_type == schema.AssignmentType.annotation:
+    query_response = db.query(model.Annotation).filter(
+        model.Annotation.task_id == task_id,
+        model.Annotation.user_id == user_id
+    ).first()
+  elif task_type == schema.AssignmentType.review:
+    query_response = db.query(model.Review).filter(
+        model.Review.task_id == task_id,
+        model.Review.user_id == user_id
+    ).first()
+  else:
+    raise HTTPException(status_code=404, detail="Task not found")
+
+  is_labeled = query_response is not None
+  return {"is_labeled": is_labeled}
+
+@router.post("/tasks/labels/is_labeled")
+async def are_tasks_labeled(label_check: schema.LabelCheck, db: Session = Depends(get_db)) -> Dict[str, bool]:
+  if label_check.task_type not in [schema.AssignmentType.annotation, schema.AssignmentType.review]:
+    raise HTTPException(status_code=400, detail="Invalid task type")
+  
+  if label_check.task_type == schema.AssignmentType.annotation:
+    query_response = db.query(model.Annotation.task_id).filter(
+        model.Annotation.task_id.in_(label_check.task_ids),
+        model.Annotation.user_id == label_check.user_id
+    ).all()
+  elif label_check.task_type == schema.AssignmentType.review:
+    query_response = db.query(model.Review.task_id).filter(
+        model.Review.task_id.in_(label_check.task_ids),
+        model.Review.user_id == label_check.user_id
+    ).all()
+
+  labeled_task_ids = {result[0] for result in query_response}
+  return {task_id: task_id in labeled_task_ids for task_id in label_check.task_ids}
+
+from typing import Optional
+@router.get("/projects/{project_id}/tasks")
+async def get_tasks_by_label_status(request: Request,
+                                    project_id: int,
+                                    labeled: Optional[bool] = None,
+                                    db: Session = Depends(get_db),
+                                    role: str = Depends(get_current_role)):
+    user_info = get_current_user(request)
+    user_id = user_info["user_id"]
+    user = crud.get_user(db, user_id)
+    
+    assigned_tasks = crud.get_assigned_tasks_by_type_and_project(db, 
+                                user_id=user_id, assignment_type=schema.RoleToAssignment[role].value, project_id=project_id)
+    
+    if labeled is not None:
+      if role == schema.UserRole.annotator:
+        assigned_tasks = [task for task in assigned_tasks if any(annotation.user_id == user.user_id for annotation in task.annotations) == labeled]
+      else:
+        assigned_tasks = [task for task in assigned_tasks if any(review.user_id == user.user_id for review in task.reviews) == labeled]
+  
+    return assigned_tasks
+
+  # for task in assigned_tasks:
+  #   if task.task_id:
+  #     task_ids.append(task.task_id)
+  #   return [task.task_id for task in tasks]
+  # else:
+  #   return [task["task_id"] for task in tasks if task["labeled"] == labeled]
+    
 # Update Task Endpoint
 @router.put("/projects/{project_id}/tasks/{task_id}", response_model=schema.Task)
 def update_task(task_id: str, task: schema.TaskUpdate, db: Session = Depends(get_db)):
@@ -133,21 +209,19 @@ async def auto_assign_task(project_id: int, db: Session = Depends(get_db)):
   return RedirectResponse(url=f'/projects/{project_id}/tasks', status_code=303)
 
 # Assign Task Endpoint
-@router.get("/assign_task/{task_id}/{reviewer_id}", response_class=JSONResponse)
+@router.post("/assign_task/{task_id}/{reviewer_id}", response_class=JSONResponse)
 async def assign_task(task_id: str, reviewer_id: int, db: Session = Depends(get_db)):
   try:
-      # Implement assignment logic
     crud.assign_task(db, task_id=task_id, user_id=reviewer_id, assignment_type=schema.AssignmentType.review)
     return {"message": "Task assigned successfully"}
   except Exception as e:
     return JSONResponse(status_code=400, content={"message": str(e)})
 
 # Unassign Task Endpoint
-@router.get("/unassign_task/{task_id}/{reviewer_id}", response_class=JSONResponse)
+@router.post("/unassign_task/{task_id}/{reviewer_id}", response_class=JSONResponse)
 async def unassign_task(task_id: str, reviewer_id: int, db: Session = Depends(get_db)):
   try:
-    # Implement unassignment logic
-    crud.unassign_task(db, task_id=task_id, user_id=reviewer_id)
+    crud.unassign_task(db, task_id=task_id, user_id=reviewer_id, assignment_type=schema.AssignmentType.review)
     return {"message": "Task unassigned successfully"}
   except Exception as e:
     return JSONResponse(status_code=400, content={"message": str(e)})
@@ -159,13 +233,12 @@ async def remove_task(task_id: str, db: Session = Depends(get_db)):
   return RedirectResponse(url='admin/task_panel', status_code=303)
 
 @router.get("/tasks/{task_id}/default_label", response_model=schema.AnnotationRetrieve)
-def get_default_label(task_id: str, user_id: str, db: Session = Depends(get_db)):
-  query_response = (db.query(model.Annotation)
-                    .filter(model.Annotation.task_id == task_id, model.Annotation.user_id == user_id)
-                    .first())
-  if not query_response:
-    return None
-  return {"label": query_response.label}
+def get_default_label(task_id: str, user_id: int, task_type: str, db: Session = Depends(get_db)):
+  if task_type==schema.AssignmentType.review:
+    query_response = crud.get_default_review(db, task_id=task_id, user_id=user_id)
+  else:
+    query_response = crud.get_default_label(db, task_id=task_id, user_id=user_id)
+  return {"label": query_response.label if query_response else None}
 
 def preprocess_labels(labels_str):
   return [label.strip(' "') for label in labels_str.split(",")]

@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.post("/", response_model=schemas.Review)
 def create_review(review: schemas.ReviewCreate, db: Session = Depends(get_db)):
-  return crud.create_review(db=db, review=review)
+  return crud.create_review(db=db, label=review.label, task_id=review.task_id, reviewer_id=review.user_id)
 
 @router.get("/{review_id}", response_model=schemas.Review)
 def read_review(review_id: int, db: Session = Depends(get_db)):

@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 
 from app.dependencies import get_current_user, create_access_token, set_user_role, get_current_role
 from app.schema import UserRole
-from app.crud import get_user_by_email_and_role
+from app import crud
 from app.database import get_db
 
 # Load environment variables from .env file
@@ -78,33 +78,33 @@ async def authorize(request: Request):
   return response
 
 @router.get("/oauth2callback")
-async def oauth2callback(request: Request):
+async def oauth2callback(request: Request, db: Session = Depends(get_db)):
   """Handle the OAuth 2.0 callback and fetch user information."""
   state = request.cookies.get("state")
   if not state:
-      logger.warning("Invalid state parameter.")
-      raise HTTPException(status_code=400, detail="Invalid state parameter.")
+    logger.warning("Invalid state parameter.")
+    raise HTTPException(status_code=400, detail="Invalid state parameter.")
 
   try:
-      token = oauth.fetch_token(TOKEN_URL, client_secret=GOOGLE_CLIENT_SECRET, authorization_response=str(request.url))
-      logger.info("Token fetched successfully.")
+    token = oauth.fetch_token(TOKEN_URL, client_secret=GOOGLE_CLIENT_SECRET, authorization_response=str(request.url))
+    logger.info("Token fetched successfully.")
   except Exception as e:
-      logger.error(f"Error fetching token: {e}")
-      raise HTTPException(status_code=400, detail=f"Error fetching token: {e}")
+    logger.error(f"Error fetching token: {e}")
+    raise HTTPException(status_code=400, detail=f"Error fetching token: {e}")
 
   try:
-      idinfo = id_token.verify_oauth2_token(token["id_token"], google_requests.Request(), GOOGLE_CLIENT_ID)
-      logger.info("ID token verified successfully.")
+    idinfo = id_token.verify_oauth2_token(token["id_token"], google_requests.Request(), GOOGLE_CLIENT_ID)
+    logger.info("ID token verified successfully.")
   except Exception as e:
-      logger.error(f"Error verifying ID token: {e}")
-      raise HTTPException(status_code=500, detail=f"Error verifying ID token: {e}")
+    logger.error(f"Error verifying ID token: {e}")
+    raise HTTPException(status_code=500, detail=f"Error verifying ID token: {e}")
 
   # Get user's Google Account info
+  user = crud.get_user_by_email(db, idinfo.get('email'))
   user_info = {
-      'userid': idinfo['sub'],
-      'email': idinfo.get('email'),
-      'name': idinfo.get('name'),
-      'picture': idinfo.get('picture')
+      'user_id': user.user_id,
+      'email': user.email,
+      'user_name': user.username
   }
   
   access_token = create_access_token(data={"user_info": user_info})
@@ -125,18 +125,19 @@ async def select_user_role(request: Request, user_info: dict = Depends(get_curre
 async def verify_role(request: Request, role: UserRole, db: Session = Depends(get_db), user_info: dict = Depends(get_current_user)):
   """Verify the user role and respond with success or failure."""
   selected_role = role.name
-  user_email = user_info.get("email")
+  user_id = user_info.get("user_id")
 
-  user = get_user_by_email_and_role(db, user_email, selected_role)
-  if not user:
-      raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Role not assigned to user")
+  user = crud.get_user(db, user_id)
+
+  if not selected_role in [role.role_name for role in user.roles]:
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Role not assigned to user")
 
   response = JSONResponse(content={"message": "Role verification successful", "user_info": user_info})
   response.set_cookie("current_role", selected_role, httponly=True, secure=True)
   access_token = create_access_token(data={"user_info": user_info, "current_role": selected_role})
   response.set_cookie("access_token", access_token, httponly=True, secure=True)
 
-  logger.info(f"Role '{selected_role}' verified for user '{user_email}'.")
+  logger.info(f"Role '{selected_role}' verified for user '{user.email}'.")
   return response
 
 @app.exception_handler(HTTPException)

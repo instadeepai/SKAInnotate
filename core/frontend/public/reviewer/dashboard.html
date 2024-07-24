@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reviewer Task View</title>
+    <title>Reviewer Task Panel</title>
     <style>
         table {
             width: 80%;
@@ -22,6 +22,10 @@
 
         th {
             background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
 
         img {
@@ -45,37 +49,53 @@
         .back-button:hover {
             background-color: #0056b3;
         }
+
+        h1 {
+            text-align: center;
+        }
+
+        .clickable-row {
+            cursor: pointer;
+        }
     </style>
     <script>
         function goBack() {
             window.history.back();
         }
+
+        function shortenPath(path, maxLength = 30) {
+            return path.length > maxLength ? path.slice(0, maxLength) + '...' : path;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.metadata-path').forEach(function (element) {
+                element.textContent = shortenPath(element.textContent);
+            });
+
+            document.querySelectorAll('.clickable-row').forEach(function (row) {
+                row.addEventListener('click', function () {
+                    window.location.href = `/projects/{{project_id}}/tasks/${this.dataset.taskId}`;
+                });
+            });
+        });
     </script>
 </head>
 
 <body>
-    <h1>Reviewer Task View</h1>
+    <h1>Reviewer Task Panel</h1>
     <button class="back-button" onclick="goBack()">Back</button>
     {% if tasks %}
     <table>
         <tr>
             <th>ID</th>
             <th>Image</th>
-            <th>Metadata</th>
-            <th>Actions</th>
+            <th>Review Status</th>
         </tr>
         {% for task in tasks %}
-        <tr>
+        <tr class="clickable-row" data-task-id="{{ task.task_id }}">
             <td>{{ task.task_id }}</td>
             <td><img src="{{ task.image_url }}" alt="Thumbnail"></td>
-            <td>
-                <p><strong>Path:</strong> {{ task.image_path }}</p>
-                <p><strong>Created At:</strong> {{ task.created_at }}</p>
-                <p><strong>Description:</strong> {{ task.description }}</p>
-            </td>
-            <td>
-                <button onclick="window.location.href='/annotate/{{ task.task_id }}'">Annotate</button>
-            </td>
+            <td><input type="checkbox" disabled {% if task.completion_status %}checked{% endif %}></td>
         </tr>
         {% endfor %}
     </table>

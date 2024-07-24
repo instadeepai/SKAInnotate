@@ -111,7 +111,7 @@
             const completionDeadlineFormatted = completionDeadline ? completionDeadline + 'T00:00:00' : null;
 
             try {
-                const response = await fetch('/projects/create', {
+                const response = await fetch('/projects/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -127,7 +127,7 @@
 
                 if (response.ok) {
                     alert('Project created successfully');
-                    window.location.href = '/projects/';  // Redirect to the projects list
+                    window.location.href = '/projects/projects-page';  // Redirect to the projects list
                 } else {
                     alert('Failed to create project');
                 }
@@ -139,7 +139,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('cancelButton').addEventListener('click', function () {
-                window.location.href = '/projects/';
+                window.location.href = '/projects/projects-page';
             });
 
             document.getElementById('backButton').addEventListener('click', function () {
