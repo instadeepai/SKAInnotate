@@ -137,7 +137,7 @@
                 const jsonData = JSON.stringify(formData);
 
                 const project_id = '{{ project.project_id }}'; // Dynamically resolve project_id
-                fetch(`/projects/${project_id}/configurations/edit/`, {
+                fetch(`/projects/${project_id}/configurations/edit`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'

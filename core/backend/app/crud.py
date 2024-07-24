@@ -91,10 +91,9 @@ def get_user(db: Session, user_id: int) -> Optional[User]:
 def get_user_role_by_email(db: Session, user_email: str):
   return db.query(User, Role).join(user_roles).join(Role).filter(User.email == user_email).all()
 
-def get_user_by_email_and_role(db: Session, user_email: str, role_name: str):
+def get_user_by_email(db: Session, user_email: str):
   return db.query(User).join(User.roles).filter(
-      User.email == user_email,
-      Role.role_name == role_name
+      User.email == user_email
   ).one_or_none()
 
 def get_users(db: Session, skip: int = 0, limit: int = 100) -> List[User]:
@@ -260,9 +259,21 @@ def assign_task_to_user(db: Session, task_id: str, project_id: int, user: User):
   return task
 
 def assign_task(db: Session, task_id: str, user_id: int, assignment_type: schema.AssignmentType):
-  existing_assignment = db.query(AssignedTask).filter_by(task_id=task_id, user_id=user_id).first()
+  existing_assignment = db.query(AssignedTask).filter_by(task_id=task_id, user_id=user_id, assignment_type=assignment_type).first()
   if existing_assignment:
       return existing_assignment
+
+  assigned_task = AssignedTask(task_id=task_id, user_id=user_id, assignment_type=assignment_type)
+  db.add(assigned_task)
+  db.commit()
+  db.refresh(assigned_task)
+  return assigned_task
+
+def unassign_task(db: Session, task_id: str, user_id: int, assignment_type: schema.AssignmentType):
+  existing_assignment = db.query(AssignedTask).filter_by(task_id=task_id, user_id=user_id,
+                                                         assignment_type=assignment_type).first()
+  if existing_assignment:
+    return existing_assignment
 
   assigned_task = AssignedTask(task_id=task_id, user_id=user_id, assignment_type=assignment_type)
   db.add(assigned_task)
@@ -282,9 +293,12 @@ def get_users_assigned_to_task(db: Session, task_id: str, project_id: int):
 def auto_assign_tasks_to_users(db: Session, project_id: int):
   tasks = get_tasks_in_project(db, project_id)
   annotators = get_annotators(db)
-
+  query = (db.query(ProjectConfigurations)
+                             .filter(ProjectConfigurations.project_id==project_id)
+                             .first())
+  max_annotators_per_task = query.max_annotators_per_task
   if len(tasks) > 0 and len(annotators) > 0:
-    tasks_to_annotators_map = round_robin_algorithm(tasks, annotators, max_annotators_per_example=3)
+    tasks_to_annotators_map = round_robin_algorithm(tasks, annotators, max_annotators_per_example=max_annotators_per_task)
     for task_id, annotator_ids in tasks_to_annotators_map.items():
       for annotator_id in annotator_ids:
         assign_task(db, task_id, annotator_id, schema.AssignmentType.annotation)
@@ -331,6 +345,15 @@ def create_or_update_annotation(db: Session, label: str, task_id: str, annotator
   db.refresh(annotation)
   return annotation
 
+def get_default_label(db: Session, task_id: str, user_id: int):
+  return (db.query(Annotation)
+          .filter(Annotation.task_id == task_id, Annotation.user_id == user_id)
+          .first())
+
+def get_default_review(db: Session, task_id: str, user_id: int):
+  return (db.query(Review)
+          .filter(Review.task_id == task_id, Review.user_id == user_id)
+          .first())
 
 def get_annotation(db: Session, annotation_id: int) -> Optional[Annotation]:
   return db.query(Annotation).filter(Annotation.annotation_id == annotation_id).first()
@@ -383,18 +406,24 @@ def delete_annotation(db: Session, annotation_id: int) -> Optional[Annotation]:
   return annotation
 
 # Review CRUD operations
-def create_review(db: Session, review: schema.ReviewCreate, project_id: int, reviewer_id: int) -> Review:
-  new_review = Review(
-      review_comment=review.review_comment,
-      task_id=review.task_id,
-      project_id=project_id,
-      reviewer_id=reviewer_id,
-      timestamp=datetime.datetime.utcnow()
+def create_review(db: Session, label: str, task_id: str, reviewer_id: int) -> Review:
+  review = (db.query(Review)
+            .filter(Review.task_id == task_id, 
+            Review.user_id == reviewer_id).first()
   )
-  db.add(new_review)
+  
+  if review:
+    review.label = label
+  else:
+    review = Review(
+        label=label,
+        task_id=task_id,
+        user_id=reviewer_id
+    )
+    db.add(review)
   db.commit()
-  db.refresh(new_review)
-  return new_review
+  db.refresh(review)
+  return review
 
 def get_review(db: Session, review_id: int) -> Optional[Review]:
   return db.query(Review).filter(Review.review_id == review_id).first()

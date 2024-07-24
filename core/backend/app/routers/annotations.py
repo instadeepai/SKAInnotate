@@ -28,8 +28,8 @@ def read_annotation_by_user(request: Request, task_id: str, db: Session = Depend
   if not user_info:
     raise HTTPException(status_code=401, detail="User not authenticated")
   
-  user_email = user_info.get("email")
-  user = crud.get_user_by_email_and_role(db, user_email=user_email, role_name='annotator')
+  user_id = user_info.get("user_id")
+  user = crud.get_user(db, user_id)
   if not user:
     raise HTTPException(status_code=404, detail="User not found")
 
@@ -37,7 +37,7 @@ def read_annotation_by_user(request: Request, task_id: str, db: Session = Depend
   return bool(db_annotation)
 
 @router.get("/projects/{project_id}/annotations", response_model=List[schemas.Annotation])
-def read_annotations(request: Request, project_id: int, db: Session = Depends(get_db)):
+def render_annotations_page(request: Request, project_id: int, db: Session = Depends(get_db)):
   tasks_with_annotations = crud.get_tasks_with_annotations(db, project_id)
   reviewers = crud.get_reviewers(db)
 

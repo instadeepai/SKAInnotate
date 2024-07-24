@@ -125,7 +125,7 @@
         <div class="button-group">
             <button class="add-button" type="button" onclick="addUser()">Add User</button>
             <button class="remove-button" type="button" onclick="removeUser()">Remove User</button>
-            <button class="back-button" type="button" onclick="window.location.href='/users/'">Back</button>
+            <button class="back-button" type="button" onclick="window.location.href='/users/users-page'">Back</button>
         </div>
     </div>
 
@@ -136,7 +136,7 @@
             const roles = Array.from(document.getElementById('roles').selectedOptions).map(option => option.value);
 
             try {
-                const response = await fetch('/users/add/', {
+                const response = await fetch('/users/add', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -160,7 +160,7 @@
             const roles = Array.from(document.getElementById('roles').selectedOptions).map(option => option.value);
 
             try {
-                const response = await fetch('/users/remove/', {
+                const response = await fetch('/users/remove', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

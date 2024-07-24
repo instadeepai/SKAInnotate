@@ -27,14 +27,16 @@
 
         /* Back Button Styles */
         .back-button {
-            margin: 20px 0;
-            padding: 12px 24px;
-            font-size: 18px;
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
             background-color: #007bff;
             color: #fff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            text-align: center;
             transition: background-color 0.3s, box-shadow 0.3s;
         }
 
@@ -49,10 +51,11 @@
 
         /* Table Styles */
         table {
-            width: 90%;
-            max-width: 800px;
+            width: 80%;
             border-collapse: collapse;
-            margin: 25px 0;
+            margin: 20px auto;
+            font-size: 16px;
+            text-align: left;
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -65,20 +68,23 @@
         }
 
         th {
-            background-color: #007bff;
-            color: #ffffff;
-            text-align: left;
+            background-color: #f2f2f2;
         }
 
-        td {
+        tr:nth-child(even) {
             background-color: #f9f9f9;
         }
 
-        tr {
+        td img {
+            width: 100px;
+            height: auto;
+        }
+
+        tr.clickable-row {
             cursor: pointer;
         }
 
-        tr:hover {
+        tr.clickable-row:hover {
             background-color: #f1f1f1;
         }
 
@@ -102,8 +108,8 @@
             }
 
             table {
-                width: 100%;
-                font-size: 16px;
+                width: 90%;
+                font-size: 14px;
             }
 
             th,
@@ -119,7 +125,7 @@
             }
 
             table {
-                font-size: 14px;
+                font-size: 12px;
             }
 
             th,
@@ -137,14 +143,14 @@
     <table>
         <tr>
             <th>ID</th>
-            <th>Image Path</th>
+            <th>Image</th>
             <th>Labeling Status</th>
         </tr>
         {% for task in tasks %}
-        <tr onclick="goToTaskDetails('{{ task.task_id }}')">
+        <tr class="clickable-row" data-task-id="{{ task.task_id }}">
             <td>{{ task.task_id }}</td>
-            <td>{{ task.image }}</td>
-            <td><input type="checkbox" disabled {% if task.labeling_status %}checked{% endif %}></td>
+            <td><img src="{{ task.image_url }}" alt="Thumbnail"></td>
+            <td><input type="checkbox" disabled {% if task.completion_status %}checked{% endif %}></td>
         </tr>
         {% endfor %}
     </table>
@@ -153,13 +159,17 @@
     {% endif %}
 
     <script>
-        function goToTaskDetails(taskId) {
-            window.location.href = `/projects/{{project_id}}/tasks/${taskId}`;
-        }
-
         function goBack() {
             window.history.back();
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.clickable-row').forEach(function (row) {
+                row.addEventListener('click', function () {
+                    window.location.href = `/projects/{{project_id}}/tasks/${this.dataset.taskId}`;
+                });
+            });
+        });
     </script>
 </body>
 

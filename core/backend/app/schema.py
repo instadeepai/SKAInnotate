@@ -156,6 +156,11 @@ class Review(ReviewBase):
   class Config:
     from_attributes = True
 
+class LabelCheck(BaseModel):
+  task_ids: List[str]
+  user_id: int
+  task_type: str
+
 # AssignedTask models
 class AssignedTaskBase(BaseModel):
   task_type: str
