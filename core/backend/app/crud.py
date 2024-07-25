@@ -124,14 +124,14 @@ def assign_role_to_user(db: Session, role_name: str, user_name: Optional[str] = 
   role = db.query(Role).filter(Role.role_name == role_name).first()
 
   if user is None:
-      raise ValueError(f"User with email {user_email} and username {user_name} not found")
+    raise ValueError(f"User with email {user_email} and username {user_name} not found")
 
   if role is None:
-      raise ValueError(f"Role {role_name} not found")
+    raise ValueError(f"Role {role_name} not found")
 
   if role not in user.roles:
-      user.roles.append(role)
-      db.commit()
+    user.roles.append(role)
+    db.commit()
 
 def unassign_role_from_user(db: Session, role_name: str, user_name: Optional[str] = None, user_email: Optional[str] = None):
   user = db.query(User).filter(User.email == user_email, User.username == user_name).first()

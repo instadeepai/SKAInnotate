@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from typing import Generator
 import app.crud as crud
 from app.model import Role, User, Base
+import app.schema as schema
 import os
 import json
 from google.cloud.sql.connector import Connector
@@ -41,14 +42,8 @@ if not all([DB_USER, DB_PASS, DB_NAME]):
 
 connector = Connector()
 
-def db_configs(username: str, database: str):
-  return {
-      'username': username,
-      'database': database
-  }
-
 def add_initial_roles(db: Session):
-  roles = ["admin", "annotator", "reviewer"]
+  roles = schema.UserRole._member_names_ #["admin", "annotator", "reviewer"]
   for role_name in roles:
     existing_role = db.query(Role).filter_by(role_name=role_name).first()
     if not existing_role:
@@ -57,12 +52,12 @@ def add_initial_roles(db: Session):
   db.commit()
 
 def init_admin(db: Session):
-  super_user_username = os.getenv("SUPERUSER_USERNAME")
-  super_user_email = os.getenv("SUPERUSER_EMAIL")
+  super_user_username = os.getenv("SUPERUSER_USERNAME").lower()
+  super_user_email = os.getenv("SUPERUSER_EMAIL").lower()
 
   if super_user_username and super_user_email:
     user = crud.create_user(db, super_user_username, super_user_email)
-    crud.assign_role_to_user(db, user_name=super_user_username, user_email=super_user_email, role_name='admin')
+    crud.assign_role_to_user(db, user_name=super_user_username, user_email=super_user_email, role_name=schema.UserRole.admin)
   else:
     print("Error: SUPER_USER does not contain 'username' or 'email'")
 

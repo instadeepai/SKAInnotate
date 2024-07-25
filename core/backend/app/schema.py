@@ -1,9 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from enum import Enum
 from typing import Optional, List, Dict
 import datetime
 
-# Project configs
+# Project Configurations Models
 class ProjectConfigurationsBase(BaseModel):
   labels: str
   max_annotators_per_task: Optional[int] = 1
@@ -33,7 +33,7 @@ class Project(ProjectBase):
 class ProjectConfigurations(ProjectConfigurationsBase):
   pass
 
-# User Role models
+# User Role Models
 class UserRole(str, Enum):
   admin = "admin"
   annotator = "annotator"
@@ -44,8 +44,8 @@ class AssignmentType(str, Enum):
   review = "review"
 
 class RoleToAssignment(str, Enum):
-  annotator = 'annotation'
-  reviewer = 'review'
+  annotator = "annotation"
+  reviewer = "review"
 
 class RoleBase(BaseModel):
   role_name: str
@@ -62,10 +62,10 @@ class Role(RoleBase):
   class Config:
     from_attributes = True
 
-# User models
+# User Models
 class UserBase(BaseModel):
   username: str
-  email: Optional[str] = None
+  email: EmailStr
 
 class UserCreate(UserBase):
   pass
@@ -85,7 +85,8 @@ class User(UserBase):
 
 class UserRetrieve(UserBase):
   user_id: int
-# Task models
+
+# Task Models
 class TaskBase(BaseModel):
   task_id: str
 
@@ -110,7 +111,11 @@ class TaskUpsert(TaskBase):
 class TaskUpdate(TaskBase):
   pass
 
-# Annotation models
+class TaskResponse(TaskBase):
+    image_url: str
+    completion_status: bool
+
+# Annotation Models
 class AnnotationBase(BaseModel):
   label: str
 
@@ -137,7 +142,7 @@ class AdminRetrieveAllAnnotations(BaseModel):
   image: str
   annotations: str
 
-# Review models
+# Review Models
 class ReviewBase(BaseModel):
   label: str
 
@@ -161,7 +166,7 @@ class LabelCheck(BaseModel):
   user_id: int
   task_type: str
 
-# AssignedTask models
+# Assigned Task Models
 class AssignedTaskBase(BaseModel):
   task_type: str
 

@@ -2,8 +2,8 @@ import os
 import logging
 from fastapi import APIRouter, Depends, Request, HTTPException, status, FastAPI
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+# from fastapi.templating import Jinja2Templates
+# from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from requests_oauthlib import OAuth2Session
 from google.oauth2 import id_token
@@ -30,8 +30,6 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app and router
 app = FastAPI()
 router = APIRouter()
-templates = Jinja2Templates(directory="/app/frontend/public")
-router.mount("/static", StaticFiles(directory="/app/frontend/public"), name="static")
 
 # OAuth 2.0 configuration
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -58,12 +56,6 @@ async def index(request: Request):
   """Redirect root path to the login page."""
   logger.info("Redirecting to the login page.")
   return RedirectResponse(url='/login')
-
-@router.get("/login", response_class=HTMLResponse)
-async def login(request: Request):
-  """Render the login page."""
-  logger.info("Rendering the login page.")
-  return templates.TemplateResponse("login.html", {"request": request})
 
 @router.get("/authorize")
 async def authorize(request: Request):
@@ -114,12 +106,6 @@ async def oauth2callback(request: Request, db: Session = Depends(get_db)):
   logger.info(f"User info fetched: {user_info}")
   logger.info("Redirecting to the select user role page.")
   return response
-
-@router.get("/role", response_class=HTMLResponse)
-async def select_user_role(request: Request, user_info: dict = Depends(get_current_user)):
-  """Render the page for selecting a user role."""
-  logger.info("Rendering the role selection page.")
-  return templates.TemplateResponse("roles.html", {"request": request, "user_info": user_info})
 
 @router.post("/verify/{role}", response_class=JSONResponse)
 async def verify_role(request: Request, role: UserRole, db: Session = Depends(get_db), user_info: dict = Depends(get_current_user)):

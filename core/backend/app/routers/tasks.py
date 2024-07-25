@@ -18,12 +18,15 @@ from app.database import get_db
 from app.dependencies import get_current_role, get_current_user
 
 router = APIRouter()
-templates = Jinja2Templates(directory="/app/frontend/public")
 
 @router.post("/projects/{project_id}/tasks", response_model=schema.Task)
 def create_task(project_id: int, task: schema.TaskCreate, db: Session = Depends(get_db)):
   return crud.create_task(db=db, project_id=project_id, task=task)
 
+# @router.get("/tasks")
+# def get_tasks():
+#   tasks = crud.get_assigned_tasks(db, user_id=user_id)
+#   return tasks
 # Update Tasks from CSV Endpoint
 @router.post("/projects/{project_id}/tasks/update-from-csv", response_class=HTMLResponse)
 async def update_csv(project_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
@@ -54,24 +57,6 @@ async def update_csv(project_id: int, file: UploadFile = File(...), db: Session 
       crud.create_task(db=db, task=task)
 
   return RedirectResponse(url=f'/projects/{project_id}/tasks', status_code=303)
-
-# Read Tasks Endpoint
-@router.get("/projects/{project_id}/tasks", response_class=HTMLResponse)
-def read_tasks(request: Request, project_id: int, db: Session = Depends(get_db)):
-  tasks = crud.get_tasks_in_project(db=db, project_id=project_id)
-  return templates.TemplateResponse("admin/task_panel.html", 
-                                    {"request": request, "tasks": tasks, "project_id": project_id})
-
-@router.get("/projects/{project_id}/tasks/{task_id}", response_class=HTMLResponse)
-async def render_task_page(request: Request,
-                           project_id: int,
-                           task_id: str,
-                           role: str = Depends(get_current_role)):
-    return templates.TemplateResponse(f"{role}/task_single.html", {
-        "request": request,
-        "task_id": task_id,
-        "project_id": project_id,
-    })
 
 @router.get("/api/projects/{project_id}/tasks/{task_id}")
 async def get_task_details(request: Request,
@@ -153,7 +138,7 @@ async def are_tasks_labeled(label_check: schema.LabelCheck, db: Session = Depend
   return {task_id: task_id in labeled_task_ids for task_id in label_check.task_ids}
 
 from typing import Optional
-@router.get("/projects/{project_id}/tasks")
+@router.get("/tasks")
 async def get_tasks_by_label_status(request: Request,
                                     project_id: int,
                                     labeled: Optional[bool] = None,
@@ -171,16 +156,58 @@ async def get_tasks_by_label_status(request: Request,
         assigned_tasks = [task for task in assigned_tasks if any(annotation.user_id == user.user_id for annotation in task.annotations) == labeled]
       else:
         assigned_tasks = [task for task in assigned_tasks if any(review.user_id == user.user_id for review in task.reviews) == labeled]
-  
+    print("Getting assigned tasks here! ", assigned_tasks)
     return assigned_tasks
 
-  # for task in assigned_tasks:
-  #   if task.task_id:
-  #     task_ids.append(task.task_id)
-  #   return [task.task_id for task in tasks]
-  # else:
-  #   return [task["task_id"] for task in tasks if task["labeled"] == labeled]
+# @router.get("/tasks-with-imgUrl-and-labelStatus")
+# async def get_tasks_url_label_status(request: Request,
+#                                     project_id: int,
+#                                     db: Session = Depends(get_db),
+#                                     role: str = Depends(get_current_role)):
+#     user_info = get_current_user(request)
+#     user_id = user_info["user_id"]
+#     user = crud.get_user(db, user_id)
     
+#     assigned_tasks = crud.get_assigned_tasks_by_type_and_project(db, 
+#                                 user_id=user_id, assignment_type=schema.RoleToAssignment[role].value, project_id=project_id)
+    
+#     # if labeled is not None:
+#     for task in assigned_tasks:
+#       if role == schema.UserRole.annotator:
+#         task.completion_status = any(annotation.user_id == user.user_id for annotation in task.annotations)
+#       else:
+#         task.completion_status = any(review.user_id == user.user_id for review in task.reviews)
+#       print("Getting assigned tasks here! ", assigned_tasks)
+#     return assigned_tasks
+
+@router.get("/tasks-with-imgUrl-and-labelStatus", response_model=List[schema.TaskResponse])
+async def get_tasks_url_label_status(request: Request,
+                                  project_id: int,
+                                  db: Session = Depends(get_db),
+                                  role: str = Depends(get_current_role)):
+  user_info = get_current_user(request)
+  user_id = user_info["user_id"]
+  user = crud.get_user(db, user_id)
+  
+  assigned_tasks = crud.get_assigned_tasks_by_type_and_project(db, 
+                      user_id=user_id, assignment_type=schema.RoleToAssignment[role].value, project_id=project_id)
+  
+  # Transform tasks to match the expected response structure
+  tasks_response = []
+  for task in assigned_tasks:
+    if role == schema.UserRole.annotator:
+      completion_status = any(annotation.user_id == user.user_id for annotation in task.annotations)
+    else:
+      completion_status = any(review.user_id == user.user_id for review in task.reviews)
+    image_url =  task.image.replace("gs://", "https://storage.cloud.google.com/")
+
+    tasks_response.append({
+        "task_id": task.task_id,
+        "image_url": image_url,
+        "completion_status": completion_status
+    })
+  return tasks_response
+
 # Update Task Endpoint
 @router.put("/projects/{project_id}/tasks/{task_id}", response_model=schema.Task)
 def update_task(task_id: str, task: schema.TaskUpdate, db: Session = Depends(get_db)):
@@ -196,11 +223,6 @@ def delete_task(task_id: str, db: Session = Depends(get_db)):
   if db_task is None:
     raise HTTPException(status_code=404, detail="Task not found")
   return db_task
-
-# Add Task Form Endpoint
-@router.get("/projects/{project_id}/tasks/add_task", response_class=HTMLResponse)
-async def add_task_form(request: Request):
-  return templates.TemplateResponse("admin/add_task.html", {"request": request})
 
 # Auto Assign Tasks Endpoint
 @router.get("/projects/{project_id}/tasks/auto/assign-tasks", response_class=HTMLResponse)

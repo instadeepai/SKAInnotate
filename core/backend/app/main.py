@@ -9,7 +9,8 @@ from app.routers import (auth,
                       annotations, 
                       reviews,
                       welcome,
-                      projects
+                      projects,
+                      views
                       )
 
 app = FastAPI()
@@ -18,6 +19,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.add_middleware(SessionMiddleware, secret_key=os.urandom(24))
 
+app.include_router(views.router)
 app.include_router(welcome.router)
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(users.router, prefix="/users", tags=["users"])
@@ -27,5 +29,4 @@ app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
 app.include_router(projects.router, prefix="/projects", tags=["projects"])
 
 if __name__ == "__main__":
-  # uvicorn.run(app, host="127.0.0.1", port=8000)
   uvicorn.run(app, os.environ.get("HOST", "0.0.0.0"), port=int(os.environ.get("PORT", 8000)))

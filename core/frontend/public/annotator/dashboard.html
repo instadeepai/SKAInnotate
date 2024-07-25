@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Annotator Task Panel</title>
     <style>
-        /* Global Styles */
         body {
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
@@ -25,7 +24,6 @@
             font-size: 28px;
         }
 
-        /* Back Button Styles */
         .back-button {
             display: block;
             margin: 20px auto;
@@ -49,7 +47,6 @@
             outline: none;
         }
 
-        /* Table Styles */
         table {
             width: 80%;
             border-collapse: collapse;
@@ -59,6 +56,7 @@
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
         }
 
         th,
@@ -88,7 +86,6 @@
             background-color: #f1f1f1;
         }
 
-        /* No Tasks Message */
         .no-tasks {
             text-align: center;
             font-size: 18px;
@@ -96,7 +93,27 @@
             margin-top: 20px;
         }
 
-        /* Responsive Design */
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #007bff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+            margin: 100px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 24px;
@@ -139,36 +156,68 @@
 <body>
     <h1>Annotator Task Panel</h1>
     <button class="back-button" onclick="goBack()">Back</button>
-    {% if tasks %}
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Image</th>
-            <th>Labeling Status</th>
-        </tr>
-        {% for task in tasks %}
-        <tr class="clickable-row" data-task-id="{{ task.task_id }}">
-            <td>{{ task.task_id }}</td>
-            <td><img src="{{ task.image_url }}" alt="Thumbnail"></td>
-            <td><input type="checkbox" disabled {% if task.completion_status %}checked{% endif %}></td>
-        </tr>
-        {% endfor %}
+    <div class="spinner" id="spinner"></div>
+    <table id="tasksTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Labeling Status</th>
+            </tr>
+        </thead>
+        <tbody id="tasksTableBody">
+            <!-- Tasks will be populated here -->
+        </tbody>
     </table>
-    {% else %}
-    <p class="no-tasks">No tasks available</p>
-    {% endif %}
+    <p class="no-tasks" id="noTasksMessage" style="display: none;">No tasks available</p>
 
     <script>
         function goBack() {
             window.history.back();
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.clickable-row').forEach(function (row) {
-                row.addEventListener('click', function () {
-                    window.location.href = `/projects/{{project_id}}/tasks/${this.dataset.taskId}`;
-                });
-            });
+        document.addEventListener('DOMContentLoaded', async function () {
+            const spinner = document.getElementById('spinner');
+            const table = document.getElementById('tasksTable');
+            const tableBody = document.getElementById('tasksTableBody');
+            const noTasksMessage = document.getElementById('noTasksMessage');
+
+            spinner.style.display = 'block'; // Show the spinner
+
+            try {
+                const projectId = '{{ project_id }}'; 
+                const response = await fetch(`/tasks-with-imgUrl-and-labelStatus?project_id=${projectId}`);
+
+                if (response.ok) {
+                    const tasks = await response.json();
+                    console.log("Tasks fetched:", tasks);
+
+                    if (tasks.length > 0) {
+                        tasks.forEach(task => {
+                            const row = document.createElement('tr');
+                            row.classList.add('clickable-row');
+                            row.dataset.taskId = task.task_id;
+                            row.innerHTML = `
+                                <td>${task.task_id}</td>
+                                <td><img src="${task.image_url}" alt="Thumbnail"></td>
+                                <td><input type="checkbox" disabled ${task.completion_status ? 'checked' : ''}></td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                        table.style.display = ''; // Show the table
+                        noTasksMessage.style.display = 'none'; // Hide the no-tasks message
+                    } else {
+                        table.style.display = 'none'; // Hide the table
+                        noTasksMessage.style.display = ''; // Show the no-tasks message
+                    }
+                } else {
+                    console.error('Failed to fetch tasks:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                spinner.style.display = 'none'; // Hide the spinner
+            }
         });
     </script>
 </body>

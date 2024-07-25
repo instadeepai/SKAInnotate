@@ -124,21 +124,43 @@
         .delete-button:hover {
             background-color: #c82333;
         }
+
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #6a6d6f;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 2s linear infinite;
+            margin: 100px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
 <body>
     <h1>Projects</h1>
 
+    <div class="spinner" id="spinner"></div>
+
     <div class="button-group">
-        <button onclick="window.location.href='/auth/role'" class="back-button">Back to Roles</button>
+        <button onclick="window.location.href='/role'" class="back-button">Back to Roles</button>
         {% if role == 'admin' %}
-        <a href="/projects/create-project-form" class="create-button">Create New Project</a>
+        <a href="/projects/create-project-form" class="create-button" id="createProjectButton">Create New Project</a>
         {% endif %}
     </div>
 
-    {% if projects %}
-    <table>
+    <table id="projectsTable" style="display: none;">
         <thead>
             <tr>
                 <th>Project ID</th>
@@ -147,27 +169,98 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
-            {% for project in projects %}
-            <tr id="project-{{ project.project_id }}">
-                <td>{{ project.project_id }}</td>
-                <td>{{ project.project_title }}</td>
-                <td>{{ project.created_at }}</td>
-                <td>
-                    <a href="/projects/{{ project.project_id }}/dashboard">View</a>
-                    {% if role == 'admin' %}
-                    <a href="/projects/{{ project.project_id }}/edit-page">Edit</a>
-                    <button class="delete-button" data-project-id="{{ project.project_id }}"
-                        onclick="deleteProject(this)">Delete</button>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
+        <tbody id="projectsTableBody">
+            <!-- Projects will be populated here -->
         </tbody>
     </table>
-    {% else %}
-    <p class="no-projects">No projects available</p>
-    {% endif %}
+
+    <p class="no-projects" id="noProjectsMessage" style="display: none;">No projects available</p>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const spinner = document.getElementById('spinner');
+            spinner.style.display = 'block'; // Show the spinner
+
+            const role = await getRole();
+            if (role === 'admin') {
+                document.getElementById('createProjectButton').style.display = 'block';
+            }
+            await loadProjects();
+            spinner.style.display = 'none'; // Hide the spinner once data is loaded
+        });
+
+        async function getRole() {
+            try {
+                const response = await fetch('/users/role');
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.role;
+                } else {
+                    console.error('Failed to fetch user role:', response.statusText);
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                return null;
+            }
+        }
+
+        async function loadProjects() {
+            try {
+                const response = await fetch('/projects/');
+                if (response.ok) {
+                    const projects = await response.json();
+                    const tableBody = document.getElementById('projectsTableBody');
+                    const noProjectsMessage = document.getElementById('noProjectsMessage');
+                    const projectsTable = document.getElementById('projectsTable');
+                    if (projects.length > 0) {
+                        projects.forEach(project => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${project.project_id}</td>
+                                <td>${project.project_title}</td>
+                                <td>${new Date(project.created_at).toLocaleDateString()}</td>
+                                <td>
+                                    <a href="/dashboard?project_id=${project.project_id}">View</a>
+                                    {% if role == 'admin' %}
+                                        <a href="/edit-page?project_id=${project.project_id}">Edit</a>
+                                        <button class="delete-button" data-project-id="${project.project_id}" onclick="deleteProject(this)">Delete</button>
+                                    {% endif %}
+                            </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                        projectsTable.style.display = '';
+                        noProjectsMessage.style.display = 'none';
+                    } else {
+                        projectsTable.style.display = 'none';
+                        noProjectsMessage.style.display = '';
+                    }
+                } else {
+                    console.error('Failed to fetch projects:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function deleteProject(button) {
+            const projectId = button.getAttribute('data-project-id');
+            try {
+                const response = await fetch(`/projects/${projectId}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    const row = document.getElementById(`project-${projectId}`);
+                    row.remove();
+                } else {
+                    console.error('Failed to delete project:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
 </body>
 
 </html>

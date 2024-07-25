@@ -10,4 +10,4 @@ def on_startup():
 
 @router.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-  return RedirectResponse(url='auth/login')
+  return RedirectResponse(url='/login')
