@@ -113,55 +113,102 @@
         .hidden {
             display: none;
         }
+
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content label {
+            padding: 12px 16px;
+            display: block;
+        }
+
+        .dropdown-content label input {
+            margin-right: 10px;
+        }
+
+        .dropdown-container:hover .dropdown-content {
+            display: block;
+        }
     </style>
 </head>
 
 <body>
     <h1>Task and Annotations Panel</h1>
+
+    <div class="button-group">
+        <div class="dropdown-container">
+            <button class="dropdown-toggle">Filter Columns</button>
+            <div class="dropdown-content">
+                <label><input type="checkbox" class="column-toggle" data-column="id" checked>ID</label>
+                <label><input type="checkbox" class="column-toggle" data-column="image" checked>Image</label>
+                <label><input type="checkbox" class="column-toggle" data-column="annotations"
+                        checked>Annotations</label>
+                <label><input type="checkbox" class="column-toggle" data-column="actions" checked>Review Actions</label>
+            </div>
+        </div>
+    </div>
+
     {% if tasks %}
     <table>
-        <tr>
-            <th>ID</th>
-            <th>Image</th>
-            <th>Annotations</th>
-            <th>Review Actions</th>
-        </tr>
-        {% for task in tasks %}
-        <tr>
-            <td>{{ task.task_id }}</td>
-            <td>{{ task.image }}</td>
-            <td>
-                {% if task.labels %}
-                <ul>
-                    {% for label in task.labels %}
-                    <li>{{ label }}</li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                No annotations
-                {% endif %}
-            </td>
-            <td>
-                <button onclick="showDropdown('{{ task.task_id }}', 'assign')">Assign</button>
-                <button onclick="showDropdown('{{ task.task_id }}', 'unassign')">Unassign</button>
-                <button onclick="window.location.href='/remove_task/{{ task.task_id }}'">Remove</button>
-                <div id="dropdown-{{ task.task_id }}" class="hidden">
-                    <select
-                        onchange="assignReviewer('{{ task.task_id }}', this.value, this.getAttribute('data-action'))"
-                        data-action="">
-                        <option value="">Select Reviewer</option>
-                    </select>
-                </div>
-            </td>
-        </tr>
-        {% endfor %}
+        <thead>
+            <tr>
+                <th class="column-id">ID</th>
+                <th class="column-image">Image</th>
+                <th class="column-annotations">Annotations</th>
+                <th class="column-actions">Review Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td class="column-id">{{ task.task_id }}</td>
+                <td class="column-image">{{ task.image }}</td>
+                <td class="column-annotations">
+                    {% if task.labels %}
+                    <ul>
+                        {% for label in task.labels %}
+                        <li>{{ label }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    No annotations
+                    {% endif %}
+                </td>
+                <td class="column-actions">
+                    <button onclick="showDropdown('{{ task.task_id }}', 'assign')">Assign</button>
+                    <button onclick="showDropdown('{{ task.task_id }}', 'unassign')">Unassign</button>
+                    <button onclick="window.location.href='/remove_task/{{ task.task_id }}'">Remove</button>
+                    <div id="dropdown-{{ task.task_id }}" class="hidden">
+                        <select
+                            onchange="assignReviewer('{{ task.task_id }}', this.value, this.getAttribute('data-action'))"
+                            data-action="">
+                            <option value="">Select Reviewer</option>
+                        </select>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
     {% else %}
     <p class="no-tasks">No tasks available</p>
     {% endif %}
+
     <div class="button-group">
         <button onclick="window.history.back()" class="back-button">Back</button>
     </div>
+
     <div class="export-container">
         <form action="/tasks/export-annotations" method="post">
             <select name="format" id="format">
@@ -172,6 +219,7 @@
             <button type="submit">Export Annotations</button>
         </form>
     </div>
+
     <script>
         async function showDropdown(taskId, action) {
             var dropdown = document.getElementById('dropdown-' + taskId);
@@ -233,6 +281,16 @@
                 }
             }
         }
+
+        // Column visibility toggle functionality
+        document.querySelectorAll('.column-toggle').forEach(toggle => {
+            toggle.addEventListener('change', function () {
+                const columnClass = 'column-' + this.dataset.column;
+                document.querySelectorAll('.' + columnClass).forEach(cell => {
+                    cell.style.display = this.checked ? '' : 'none';
+                });
+            });
+        });
     </script>
 </body>
 
