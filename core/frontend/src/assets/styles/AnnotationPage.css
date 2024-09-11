@@ -1,0 +1,180 @@
+.annotation-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 10px);
+    border-left: 1px solid #ffffff;
+    padding: 60px 10px 20px 10px;
+}
+
+.annotation-main-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.annotation-page-container .ui.button.primary {
+    background-color: transparent;
+    color: #0e77c8;
+}
+
+.annotation-page-container .ui.button.primary,
+.annotation-page-container .ui.button.secondary {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    text-transform: none;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.annotation-page-container .ui.button.primary:hover,
+.annotation-page-container .ui.button.secondary:hover {
+    background-color: #1e84d1;
+    color: #fff;
+}
+
+
+.annotation-page-title {
+    display: flex;
+    margin-top: 0;
+    align-items: center;
+    font-size: 24px;
+    color: #333;
+}
+
+.annotation-main-content .image-container {
+    flex: 1;
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ffffff;
+    /* display: flex; */
+}
+
+/* .image-container img {
+    object-fit: cover;
+    padding: 10px 0px 5px 0px;
+    align-items: center;
+    align-content: center;
+    z-index: -1;
+} */
+
+/* .export-buttons {
+    align-items: end;
+} */
+
+.task-id {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 10px;
+    border-radius: 3px;
+    z-index: 1;
+}
+
+.sidebar-container {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    height: 100%;
+    border-left: 1px solid #ddd;
+    box-sizing: border-box;
+}
+
+.panel-container .ui.list .item:nth-child(odd) {
+    background-color: #eae8e8;
+}
+
+.panel-container .ui.list .item:nth-child(even) {
+    background-color: #ffffff;
+}
+
+.filter-dropdown {
+    top: 10px;
+    left: 10px;
+    padding: 0px 10px;
+}
+
+.panel-container {
+    margin-top: 10px;
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    box-sizing: border-box;
+}
+
+.filter-text {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.filter-label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.labels-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    width: 100%;
+}
+
+.label-option {
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    text-align: start;
+
+}
+
+.label-options {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    flex-direction: column;
+    align-items: center;
+    text-align: start;
+}
+
+.label-options h3 {
+    margin-bottom: 10px;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    margin-bottom: 0px;
+}
+
+/* .react-transform-component {
+    width: unset !important;
+    height: unset !important;
+}
+
+.react-transform-element {
+    width: unset !important;
+    height: unset !important;
+} */
+
+/* .react-transform-wrapper {
+    width: fit-content !important;
+    height: fit-content !important;
+    align-content: center !important;
+} */
+.react-transform-wrapper {
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 95%;
+}
+
+.annotation-page-container .tasks-back-arrow {
+    display: flex;
+}
+
+.image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    display:inline;
+}

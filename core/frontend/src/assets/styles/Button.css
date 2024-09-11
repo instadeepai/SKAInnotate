@@ -1,0 +1,71 @@
+/* General button styles */
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Default button style */
+.button-default {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+.button-default:hover {
+    background-color: #0056b3;
+    color: #ffffff;
+}
+
+/* Primary button style */
+.button-primary {
+    background-color: #2185d0;
+    color: #ffffff;
+}
+
+.button-primary:hover {
+    background-color: #0969b3;
+    color: #ffffff;
+}
+
+/* Secondary button style */
+.button-secondary {
+    background-color: #6c757d;
+    color: #ffffff;
+}
+
+.button-secondary:hover {
+    background-color: #5a6268;
+    color: #ffffff;
+}
+
+/* Transparent button style */
+.button-transparent {
+    background-color: transparent;
+    color: #007bff;
+    /* border: 1px solid #007bff; */
+}
+
+.button-transparent:hover {
+    background-color: #0056b3;
+    color: #ffffff;
+}
+
+.icon-button .icon {
+    margin-right: 8px;
+}
+
+.icon-button:hover {
+    background-color: #f4f4f5;
+}
+
+.icon-button:focus {
+    border-color: #85b7d9;
+    background-color: #f4f4f5;
+}

@@ -1,0 +1,81 @@
+/* Tasks Page Styles */
+.tasks-page {
+    padding: 60px;
+    position: relative;
+}
+
+.tasks-content {
+    position: relative;
+}
+
+.tasks-content .ui.table thead th {
+    background-color: #2b89d0;
+    color: white;
+    font-weight: bold;
+    border-bottom: 2px solid #cccccc;
+}
+
+.tasks-table tbody tr:nth-child(even) {
+    background-color: #fff;
+}
+
+.tasks-content .tasks-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tasks-content .tasks-table img {
+    max-width: 50px;
+    max-height: 50px;
+}
+
+.taskspage-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-height: calc(100vh - 60px);
+}
+
+.tasks-page .ui.vertical.segment {
+    margin: 0;
+    padding-left: 20px;
+    background: white;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    border-bottom: 1px solid rgba(34, 36, 38, .15);
+    background: white;
+}
+
+.taskspage-container .tasks-back-arrow {
+    display: flex;
+}
+
+.tasks-page-title {
+    font-size: 24px;
+    color: #4a4a4a;
+    font-weight: bold;
+    align-items: center;
+    gap: 10px;
+    padding-top: 0;
+    min-height: 1rem;
+    margin-top: 0;
+}
+
+.tasks-back-arrow .ui.button.primary,
+.tasks-back-arrow .ui.button.secondary {
+    font-size: 16px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.tasks-back-arrow .ui.button.primary:hover,
+.tasks-back-arrow .ui.button.secondary:hover {
+    background-color: #1e84d1;
+    color: #fff;
+}
+
+.tasks-back-arrow .ui.button.primary {
+    background-color: transparent;
+    color: #0e77c8;
+    padding: 10px 20px;
+}

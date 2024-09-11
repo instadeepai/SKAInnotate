@@ -1,0 +1,49 @@
+/* Login.css */
+
+/* Set the background color for the entire page */
+/* body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* background-color: rgb(163, 219, 244); */
+    /* Sky blue background for the entire page */
+    /* height: 100vh;
+} */
+
+/* Style for the login container to center it on the page */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    /* padding: 30% 30%; */
+}
+
+/* Style for the login segment (the login form) */
+.login-segment {
+    max-width: 450px;
+    width: 100%;
+    padding: 30px;
+    background-color: white;
+    /* Background color for the login form */
+    border-radius: 8px;
+    /* Optional: add rounded corners */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    /* Optional: add a shadow */
+}
+
+/* Style for the Google authentication button */
+.google-auth {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Additional spacing for header and button elements */
+.login-segment .header {
+    margin-bottom: 20px;
+}
+
+.login-segment .button {
+    margin-bottom: 10px;
+}

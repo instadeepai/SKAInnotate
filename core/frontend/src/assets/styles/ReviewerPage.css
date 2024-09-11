@@ -1,0 +1,49 @@
+.reviewer-container {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.filter-and-image {
+    display: flex;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+    border-right: 1px solid #ccc;
+    padding: 10px;
+}
+
+.filtered-tasks-panel {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.image-container {
+    flex: 3;
+    position: relative;
+}
+
+.image-container .task-id {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.label-options {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.navigation-buttons {
+    margin-top: 20px;
+    text-align: center;
+}

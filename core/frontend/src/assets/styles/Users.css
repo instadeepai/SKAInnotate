@@ -1,0 +1,114 @@
+.users-page {
+    padding: 60px;
+}
+
+.userpage-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.userpage-buttons .left-head{
+  display: flex;
+}
+
+.userpage-buttons .ui.button.primary{
+    background-color: transparent;
+    color: #0e77c8;
+}
+
+.users-page-title {
+    font-size: 24px;
+    color: #4a4a4a;
+    font-weight: bold;
+    align-items: center;
+    gap: 10px;
+    padding-top: 0;
+    min-height: 1rem;
+    margin-top: 0;
+}
+
+.userpage-buttons .ui.button.primary,
+.userpage-buttons .ui.button.secondary {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    text-transform: none;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.userpage-buttons .ui.button.primary:hover,
+.userpage-buttons .ui.button.secondary:hover {
+    background-color: #1e84d1;
+    color: #fff;
+}
+
+.table-container {
+    padding: 10px;
+}
+
+.table-container .ui.table {
+    border-collapse: separate;
+    width: 100%;
+}
+
+.table-container .ui.table thead th {
+    background-color: #2b89d0;
+    color: white;
+    font-weight: bold;
+    border-bottom: 2px solid #cccccc;
+}
+
+.table-container .ui.table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table-container .ui.table tbody tr:nth-child(odd) {
+    background-color: #fff;
+}
+
+.table-container .ui.table th,
+.table-container .ui.table td {
+    border: none;
+    border-bottom: 1px solid #cccccc;
+    padding: 10px;
+}
+
+.table-container .ui.button {
+    margin-right: 1.5em;
+}
+
+.table-container .assigned-role-dropdown {
+    display: inline-block;
+    /* width: 100%; */
+}
+
+.table-container, 
+.assigned-role-dropdown,
+.ui.dropdown {
+    padding-right: 15px;
+}
+
+.table-container
+.assigned-role-dropdown,
+.ui.dropdown>.dropdown.icon{
+    margin: 0 0 0 0.5em;
+}
+
+.table-container .assigned-role-dropdown .ui.dropdown {
+    margin: 1.5em 0;
+    margin-right: 15px;
+    color: black;
+    background-color: white;
+    width: 100%;
+}
+
+.table-container .assigned-role-dropdown .ui.dropdown .item {
+    padding: 10px;
+    color: #333;
+}
+
+.table-container .ui.button {
+    background-color: transparent;
+}
