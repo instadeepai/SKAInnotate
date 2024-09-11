@@ -1,0 +1,11 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'Dockerfile.frontend'  # Your custom Dockerfile name
+      - '-t'
+      - 'us-central1-docker.pkg.dev/skai-project-388314/skai-repo/skainnotate-demo-frontend:v2'
+      - '.'
+images:
+  - 'us-central1-docker.pkg.dev/skai-project-388314/skai-repo/skainnotate-demo-frontend:v2'
