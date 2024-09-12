@@ -1,71 +1,107 @@
 # SKAInnotate
-<img src="https://github.com/instadeepai/SKAInnotate/assets/18593619/5b7f895f-9479-4d1c-82d0-5bd2cd744bf7" align="right"
-     alt="SKAInnotate logo" width="120" height="120">
-     
-SKAInnotate is a data annotation tool designed for Google SKAI and operates within Google Colab Notebooks. It consists of two main notebooks: one for project administration and another for annotators.
 
-## Project Admin Notebook (`Admin-Notebook.ipynb`)
+## Overview
 
-The Project Admin notebook provides the following capabilities:
+This project consists of two main components:
+1. **Google Cloud Infrastructure Setup**: This includes setting up the project, database, authentication, container image, and Cloud Run deployment and can run locally on localhost (http://127.0.0.1:8000, http://localhost:8000).
 
-1. **Create Annotation Projects**: Set up new annotation projects.
-2. **Manage Annotators**: Add or remove annotators from projects.
-3. **Configure Project Settings**: Define project titles, storage buckets, maximum annotators per task, and other configurations.
-4. **Assign Tasks**: Assign annotation tasks to annotators.
-5. **View and Export Annotations**: Access and export annotations from all annotators.
+2. **Web Hosted Application for Data Annotation**: A web application designed for data annotation tasks, providing a user-friendly interface for annotators, reviewers, and admins.
 
-## Setup
+## Table of Contents
+1. [Google Cloud Infrastructure Setup](#google-cloud-infrastructure-setup)
+    - [Project Setup](#project-setup)
+    - [Database Setup](#database-setup)
+    - [Google Authentication Setup](#google-authentication-setup)
+    - [Container Image Setup](#container-image-setup)
+    - [Cloud Run Deployment](#cloud-run-deployment)
+2. [Web Hosted Application for Data Annotation](#web-hosted-application-for-data-annotation)
+    - [Application Overview](#application-overview)
+    - [Installation](#installation)
+    - [Usage](#usage)
+3. [Contributing](#contributing)
+4. [License](#license)
 
-### Prerequisites
+## Google Cloud Infrastructure Setup
 
-To use SKAInnotate effectively, ensure the following prerequisites are met:
+This part of the project involves setting up the necessary Google Cloud infrastructure to support the web hosted application for data annotation.
 
-- **Google Cloud Project Permissions**: Configure the Google Cloud project with permissions to manage users and resources.
-The following roles should be sufficient for the admin; Cloud SQL Admin, Storage Admin and roles/resourcemanager.projectIamAdmin.
-- **Data Upload**: All data to be labeled must be uploaded to a Google Cloud Storage bucket.
+### Project Setup
 
-### Adding Data for Labeling
+1. **Create a virtual environment**:
+   Create a virtual environment and install the libraries; fastapi
 
-To add data for labeling, follow these steps:
+    ```sh
+      pip install fastapi 'uvicorn[standard]'
+    ```
+### Installation
 
-1. Place a metadata CSV file in the same path as the data.
-2. The CSV file must include the following columns:
-   - `example_id`: Unique ID for each example.
-   - `image`: Unique filename for each example.
+1. **Clone the Repository**:
+    ```sh
+    git clone https://github.com/instadeepai/SKAInnotate.git 
+    (current active branch: test-v2)
 
-### Global Configurations
+    cd your-repo
+    ```
 
-Configure the following global settings for your SKAInnotate project:
+2. **Run the Setup Server**:
+    - Start the FastAPI server from the project root and follow the steps to set up the project.
+    ```sh
+    uvicorn setup.app.main:app --reload --port 8000
+    ```
+### Project Setup
+1. **Set up Project**:
+   - Set Project ID and service account path. Service account must have sufficient permissions which are all included in the `Storage Admin` and `Cloud SQL Admin` roles. This will be used to access GCS bucket and Cloud SQL in the next steps.
 
-- `project_id`: Google Cloud Platform (GCP) project ID.
-- `region`: Location of the GCP project.
-- `instance_name`: Name of the Google Cloud SQL instance.
-- `root_password`: Password for the PostgreSQL database user.
+### Database Setup
+1. **Set Up Cloud SQL**:
+    - Navigate to the database setup form and provide the necessary details (instance name, region, database name, user, and password).
+    - The script will create the Cloud SQL instance and the database if they do not already exist.
 
-### Project Configurations
+### Google Authentication Setup
 
-Define project-specific settings:
+1. **Configure Google OAuth 2.0**:
+   - Setup a [Google OAuth 2.0 authentication](https://help.tableau.com/current/server/en-us/config_oauth_google.htm) for the project 
+    - Provide your Google Client ID and Client Secret in the authentication setup form.
+    - This will configure Google authentication for the application.
 
-- `project_title`: Title of the project.
-- `bucket_name`: Name of the Google Cloud Storage bucket.
-- `bucket_prefix`: Prefix for the bucket (e.g., `my-storage/inner-storage` for data path `gs://my-bucket/my-storage/inner-storage/image1.png`).
-- `comma_separated_labels`: Labels stored in the database as a string. Include `"skip"` to allow annotators to skip uncertain labels.
-- `max_annotators_per_example`: Maximum number of annotators per task to provide different perspectives.
-- `completion_deadline`: Deadline to complete annotation tasks.
+### Container Image Setup
 
-## Annotator Notebook (`Annotator-Notebook.ipynb`)
+1. **Build and Push Container Image**:
+    - Choose the build option (none, local, or cloud).
+    - Provide the container image name.
+    - A container image will be built locally if build_option is `local` or built with `google builds submit` and pushed to Google Artifact Registry or use an available container image from artifact registry if build_option is set to `none`.
 
-The Annotator notebook is used by annotators to perform the following tasks:
+### Cloud Run Deployment
 
-1. **Receive Assigned Tasks**: Retrieve tasks assigned by the project admin.
-2. **Label Tasks**: Annotate data using a user interface.
-3. **Write Annotations**: Store annotations securely in a central cloud database.
+1. **Deploy to Cloud Run**:
+    - Provide the service name and region.
+    - Your web application will be deployed in the container image to Cloud Run. Application URL can be found for the cloud run service in cloud Run console.
 
-### Setup
+## Web Hosted Application for Data Annotation
 
-Annotators need to set up the following configurations:
+### Application Overview
 
-- `project_id`: GCP project ID.
-- `region`: GCP project location.
-- `instance_name`: Google Cloud SQL instance name.
-- **Authentication**: Annotators require a username and password provided by the project admin to access assigned tasks.
+The web application is designed to facilitate data annotation tasks. It includes roles for annotators, reviewers, and admins, each with specific functionalities.
+
+
+### Usage
+
+1. **Access the Application**:
+    - Open a web browser and navigate to the url provided by cloud run.
+    format: `https://<service-name>-<hashing>-<region>.a.run.app`
+2. **Update OAuth authorized redirect URI**
+   - Visit the GCP OAuth settings for the application and add a redirect URI to the Authorized redirect URIs settings. The redirect URI should look like this; `https://<service-name>-<hashing>-<region>.a.run.app/auth/oauth2callback`.
+   For instance `https://skainnotate-test-kse2o5g36a-uc.a.run.app/auth/oauth2callback` in the case of the sample deployment app below.
+
+
+3. **Roles and Functionalities**:
+    - **Admins**: Can create projects and set configurations, add/remove users, upload tasks, assign tasks, and retrieve annotations.
+    - **Annotators**: Receive tasks, annotate data, and submit annotations.
+    - **Reviewers**: Review submitted annotations and provide feedback.
+
+## Sample deployment
+```
+https://skainnotate-test-kse2o5g36a-uc.a.run.app
+```
+
+In order to access any of the roles and functionalities, you must be assigned the appriopriate role first.
