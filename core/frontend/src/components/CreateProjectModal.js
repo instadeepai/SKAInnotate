@@ -1,3 +1,4 @@
+import React from 'react';
 import { Modal, Form, Button } from "semantic-ui-react"
 
 const CreateProjectModal = ({newProject, onChange, onSubmit, onTaskFileChange, modalOpen, setModalOpen}) => {

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Google Cloud Infrastructure</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .progress-bar {
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            height: 20px;
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background-color: #007bff;
+            width: 0;
+            transition: width 0.3s;
+        }
+    </style>
+    <script>
+        let currentStep = 1;
+
+        function updateProgressBar(step) {
+            const progress = (step - 1) * 33.33;
+            document.getElementById('progress-bar-inner').style.width = `${progress}%`;
+        }
+
+        async function submitForm(step) {
+            const form = document.getElementById('setup-form');
+            const formData = new FormData(form);
+            let url = '';
+
+            switch (step) {
+                case 1:
+                    url = '/setup-step1';
+                    break;
+                case 2:
+                    url = '/setup-step2';
+                    break;
+                case 3:
+                    url = '/setup-step3';
+                    break;
+                default:
+                    return;
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.error) {
+                document.getElementById('message').innerHTML = `<span class="error">${data.error}</span>`;
+                return;
+            }
+
+            if (data.service_url) {
+                document.getElementById('message').innerHTML = `<a href="${data.service_url}" target="_blank">${data.service_url}</a>`;
+            } else {
+                document.getElementById('message').innerHTML = data.message;
+            }
+
+            const nextStep = step + 1;
+            document.getElementById(`step-${step}`).classList.add('hidden');
+            if (document.getElementById(`step-${nextStep}`)) {
+                document.getElementById(`step-${nextStep}`).classList.remove('hidden');
+            }
+
+            updateProgressBar(nextStep);
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Setup Google Cloud Infrastructure</h2>
+        <div class="progress-bar">
+            <div id="progress-bar-inner" class="progress-bar-inner"></div>
+        </div>
+        <form id="setup-form">
+            <div id="step-1" class="form-step">
+                <div class="form-group">
+                    <label for="project_id">Project ID:</label>
+                    <input type="text" id="project_id" name="project_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="bucket_name">Bucket Name:</label>
+                    <input type="text" id="bucket_name" name="bucket_name" required>
+                </div>
+                <button type="button" onclick="submitForm(1)">Next</button>
+            </div>
+            <div id="step-2" class="form-step hidden">
+                <div class="form-group">
+                    <label for="db_name">Database Name:</label>
+                    <input type="text" id="db_name" name="db_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="db_user">Database User:</label>
+                    <input type="text" id="db_user" name="db_user" required>
+                </div>
+                <div class="form-group">
+                    <label for="db_pass">Database Password:</label>
+                    <input type="password" id="db_pass" name="db_pass" required>
+                </div>
+                <button type="button" onclick="submitForm(2)">Next</button>
+            </div>
+            <div id="step-3" class="form-step hidden">
+                <div class="form-group">
+                    <label for="image">Container Image:</label>
+                    <input type="text" id="image" name="image" required>
+                </div>
+                <button type="button" onclick="submitForm(3)">Deploy</button>
+            </div>
+        </form>
+        <div id="message" class="message"></div>
+    </div>
+</body>
+
+</html>
