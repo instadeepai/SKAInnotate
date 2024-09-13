@@ -38,7 +38,7 @@ This part of the project involves setting up the necessary Google Cloud infrastr
 1. **Clone the Repository**:
     ```sh
     git clone https://github.com/instadeepai/SKAInnotate.git 
-    (current active branch: test-v2)
+    (current active branch: main)
 
     cd your-repo
     ```

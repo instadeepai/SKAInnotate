@@ -1,3 +1,4 @@
+import React from 'react';
 import {Grid, Card, Dropdown} from 'semantic-ui-react';
 
 const ProjectCard = ({projects, onProjectClick, onEditClick, onDelete}) => {

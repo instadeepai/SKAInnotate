@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Google Cloud Infrastructure</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h2 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .progress-bar {
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            height: 20px;
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background-color: #007bff;
+            width: 0;
+            transition: width 0.3s;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .button-group button {
+            flex: 1;
+            margin: 0 5px;
+        }
+    </style>
+    <script>
+        let currentStep = 1;
+
+        function updateProgressBar(step) {
+            const progress = (step - 1) * 14.2857; // Updated to 14.2857% per step for 7 steps
+            document.getElementById('progress-bar-inner').style.width = `${progress}%`;
+        }
+
+        async function submitForm(step) {
+            const form = document.getElementById('setup-form');
+            const formData = new FormData(form);
+            let url = '';
+
+            switch (step) {
+                case 1:
+                    url = '/setup-project';
+                    break;
+                case 2:
+                    url = '/setup-gcs';
+                    break;
+                case 3:
+                    url = '/setup-gcp-sql';
+                    break;
+                case 4:
+                    url = '/setup-google-auth';
+                    break;
+                case 5:
+                    url = '/setup-superuser';
+                    break;
+                case 6:
+                    url = '/setup-gcp-container';
+                    break;
+                case 7:
+                    url = '/setup-cloud-run';
+                    break;
+                case 8:
+                    url = '/setup-url-step';
+                    break;
+                default:
+                    return;
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.error) {
+                document.getElementById('message').innerHTML = `<span class="error">${data.error}</span>`;
+                return;
+            }
+
+            document.getElementById('message').innerHTML = data.message;
+
+            if (step < 8) {
+                document.getElementById(`next-${step}`).classList.remove('hidden');
+            } else if (data.service_url) {
+                document.getElementById('message').innerHTML += `<br><a href="${data.service_url}" target="_blank">${data.service_url}</a>`;
+            }
+        }
+
+        function nextStep(step) {
+            const nextStep = step + 1;
+            document.getElementById(`step-${step}`).classList.add('hidden');
+            if (document.getElementById(`step-${nextStep}`)) {
+                document.getElementById(`step-${nextStep}`).classList.remove('hidden');
+            }
+            document.getElementById('message').innerHTML = '';
+            updateProgressBar(nextStep);
+        }
+
+        function goBack(step) {
+            const previousStep = step - 1;
+            document.getElementById(`step-${step}`).classList.add('hidden');
+            document.getElementById(`step-${previousStep}`).classList.remove('hidden');
+            document.getElementById('message').innerHTML = '';
+            updateProgressBar(previousStep);
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Setup Google Cloud Infrastructure</h2>
+        <div class="progress-bar">
+            <div id="progress-bar-inner" class="progress-bar-inner"></div>
+        </div>
+        <form id="setup-form">
+            <!-- Step 1: Project and Service Account Setup -->
+            <div id="step-1" class="form-step">
+                <h3>Step 1: Project and Service Account Setup</h3>
+                <p>Enter your Google Cloud project ID and the path to your service account file.</p>
+                <div class="form-group">
+                    <label for="project_id">Project ID:</label>
+                    <input type="text" id="project_id" name="project_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="service_account_file">Service Account File Path:</label>
+                    <input type="text" id="service_account_file" name="service_account_file" required>
+                </div>
+                <div class="button-group">
+                    <button type="button" onclick="submitForm(1)">Setup</button>
+                    <button type="button" id="next-1" class="hidden" onclick="nextStep(1)">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 2: GCS Bucket Setup -->
+            <div id="step-2" class="form-step hidden">
+                <h3>Step 2: GCS Bucket Setup</h3>
+                <p>Enter the name for your Google Cloud Storage bucket.</p>
+                <div class="form-group">
+                    <label for="bucket_name">Bucket Name:</label>
+                    <input type="text" id="bucket_name" name="bucket_name" required>
+                </div>
+                <div class="button-group">
+                    <button type="button" onclick="goBack(2)">Back</button>
+                    <button type="button" onclick="submitForm(2)">Setup</button>
+                    <button type="button" id="next-2" class="hidden" onclick="nextStep(2)">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Cloud SQL Setup -->
+            <div id="step-3" class="form-step hidden">
+                <h3>Step 3: Cloud SQL Setup</h3>
+                <p>Enter the details for your Google Cloud SQL instance.</p>
+                <div class="form-group">
+                    <label for="instance_name">Instance Name:</label>
+                    <input type="text" id="instance_name" name="instance_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="region">Region:</label>
+                    <input type="text" id="region" name="region" required>
+                </div>
+                <div class="form-group">
+                    <label for="database_name">Database Name:</label>
+                    <input type="text" id="database_name" name="database_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="db_user">Database User:</label>
+                    <input type="text" id="db_user" name="db_user" required>
+                </div>
+                <div class="form-group">
+                    <label for="db_pass">Database Password:</label>
+                    <input type="password" id="db_pass" name="db_pass" required>
+                </div>
+                <div class="button-group">
+                    <button type="button" onclick="goBack(3)">Back</button>
+                    <button type="button" onclick="submitForm(3)">Setup</button>
+                    <button type="button" id="next-3" class="hidden" onclick="nextStep(3)">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Google Authentication Setup -->
+            <div id="step-4" class="form-step hidden">
+                <h3>Step 4: Google Authentication Setup</h3>
+                <p>Enter the details for Google Authentication.</p>
+                <div class="form-group">
+                    <label for="google_client_id">Google Client ID:</label>
+                    <input type="text" id="google_client_id" name="google_client_id" required>
+                </div>
+                <!-- <div class="form-group">
+                    <label for="google_client_secret">Google Client Secret:</label>
+                    <input type="password" id="google_client_secret" name="google_client_secret" required>
+                </div> -->
+                <div class="button-group">
+                    <button type="button" onclick="goBack(4)">Back</button>
+                    <button type="button" onclick="submitForm(4)">Setup</button>
+                    <button type="button" id="next-4" class="hidden" onclick="nextStep(4)">Next</button>
+                </div>
+            </div>
+            <!-- Step 5: Super User Setup -->
+            <div id="step-5" class="form-step hidden">
+                <h3>Step 5: Super User Setup</h3>
+                <p>Enter the details for the super user account.</p>
+                <div class="form-group">
+                    <label for="superuser_username">Super User Username:</label>
+                    <input type="text" id="superuser_username" name="superuser_username" required>
+                </div>
+                <div class="form-group">
+                    <label for="superuser_email">Super User Email:</label>
+                    <input type="email" id="superuser_email" name="superuser_email" required>
+                </div>
+                <div class="button-group">
+                    <button type="button" onclick="goBack(5)">Back</button>
+                    <button type="button" onclick="submitForm(5)">Setup</button>
+                    <button type="button" id="next-5" class="hidden" onclick="nextStep(5)">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 6: Container Image Setup -->
+            <div id="step-6" class="form-step hidden">
+                <h3>Step 6: Container Image Setup</h3>
+                <p>Enter the details for your container image.</p>
+                <div class="form-group">
+                    <label for="container_image_frontend">Container Image (frontend):</label>
+                    <input type="text" id="container_image_frontend" name="container_image_frontend" required>
+                </div>
+                <div class="form-group">
+                    <label for="container_image_backend">Container Image (backend):</label>
+                    <input type="text" id="container_image_backend" name="container_image_backend" required>
+                </div>
+                <div class="form-group">
+                    <label for="build_option">Build Option:</label>
+                    <select id="build_option" name="build_option" required>
+                        <option value="">Select Build Option</option>
+                        <option value="none">None</option>
+                        <option value="local">Build Locally</option>
+                        <option value="cloud">Cloud Build</option>
+                    </select>
+                </div>
+                <div class="button-group">
+                    <button type="button" onclick="goBack(6)">Back</button>
+                    <button type="button" onclick="submitForm(6)">Setup</button>
+                    <button type="button" id="next-6" class="hidden" onclick="nextStep(6)">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 7: Cloud Run Deployment -->
+            <div id="step-7" class="form-step hidden">
+                <h3>Step 7: Cloud Run Deployment</h3>
+                <p>Enter the details for deploying your service on Cloud Run.</p>
+                <div class="form-group">
+                    <label for="service_name">Service Name:</label>
+                    <input type="text" id="service_name" name="service_name" required>
+                </div>
+                <div class="button-group">
+                    <button type="button" onclick="goBack(7)">Back</button>
+                    <button type="button" onclick="submitForm(7)">Deploy</button>
+                    <button type="button" id="next-7" class="hidden" onclick="nextStep(7)">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 8: Update Deployment URLs -->
+            <div id="step-8" class="form-step hidden">
+                <h3>Step 8: Cloud Run URLs</h3>
+                <p>Enter service URLs from Cloud Run deployment.</p>
+                <div class="form-group">
+                    <label for="service_url_frontend">Cloud Run URLs (frontend):</label>
+                    <input type="text" id="service_url_frontend" name="service_url_frontend" required>
+
+                    <label for="service_url_backend">Cloud Run URLs (backend):</label>
+                    <input type="text" id="service_url_backend" name="service_url_backend" required>
+                </div>
+                <div class="button-group">
+                    <button type="button" onclick="goBack(8)">Back</button>
+                    <button type="button" onclick="submitForm(8)">Complete</button>
+                </div>
+            </div>
+        </form>
+        <div id="message" class="message"></div>
+    </div>
+</body>
+
+</html>
