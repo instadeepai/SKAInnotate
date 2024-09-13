@@ -59,10 +59,25 @@ This part of the project involves setting up the necessary Google Cloud infrastr
 
 ### Google Authentication Setup
 
-1. **Configure Google OAuth 2.0**:
-   - Setup a [Google OAuth 2.0 authentication](https://help.tableau.com/current/server/en-us/config_oauth_google.htm) for the project 
-    - Provide your Google Client ID and Client Secret in the authentication setup form.
-    - This will configure Google authentication for the application.
+1. **Enable OAuth 2.0 APIs**:
+
+    * In the Google Cloud Console, navigate to APIs & Services > Library.
+    * Search for Google Identity Toolkit API or OAuth 2.0 API.
+    Click Enable to activate the API.
+
+2. Configure OAuth 2.0 Credentials
+    - Create OAuth 2.0 Client IDs
+    Go to APIs & Services > Credentials. \
+    Click Create Credentials and select OAuth 2.0 Client ID.
+    If prompted, configure your OAuth consent screen:
+
+    -  Application Name: Give your app a name (visible to users).
+
+Once the consent screen is configured, return to the Credentials tab.
+
+In Authorized JavaScript Origins, add the URL where your app will be hosted (e.g., https://yourdomain.com). This is the cloud run frontend link provided after deployment.
+
+Copy the Client ID and Client Secret (you'll need these later).
 
 ### Container Image Setup
 
@@ -76,6 +91,11 @@ This part of the project involves setting up the necessary Google Cloud infrastr
 1. **Deploy to Cloud Run**:
     - Provide the service name and region.
     - Your web application will be deployed in the container image to Cloud Run. Application URL can be found for the cloud run service in cloud Run console.
+
+As a final step, copy the frontend url after deployment.
+Navigate to Google OAuth 2.0; APIs & Services > Credentials
+In Authorized JavaScript Origins, paste the frontend url to receive requests.
+
 
 ## Web Hosted Application for Data Annotation
 
@@ -101,7 +121,7 @@ The web application is designed to facilitate data annotation tasks. It includes
 
 ## Sample deployment
 ```
-https://skainnotate-test-kse2o5g36a-uc.a.run.app
+https://skainnotate-demo-kse2o5g36a-uc.a.run.app
 ```
 
 In order to access any of the roles and functionalities, you must be assigned the appriopriate role first.
