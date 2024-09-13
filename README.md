@@ -115,7 +115,7 @@ The SKAInnotate web application facilitates data annotation tasks. It includes r
   Receive tasks, annotate data, and submit annotations.
 
 - **Reviewers**:  
-  Review submitted annotations and provide feedback.
+  Review submitted annotations and provide final annotation.
 
 ---
 
