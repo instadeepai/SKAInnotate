@@ -9,12 +9,12 @@ async def create_cloudsql_instance(credentials, instance_configs):
     sqladmin = build('sqladmin', 'v1beta4', credentials=credentials)
 
     instance_body = {
-        'name': instance_configs['instance_name'],  # Replace with your instance name
+        'name': instance_configs['instance_name'],
         'settings': {
-            'tier': 'db-f1-micro',  # Replace with your desired tier
+            'tier': 'db-f1-micro',
         },
         'databaseVersion': 'POSTGRES_15',  # Using PostgreSQL 15
-        'region': instance_configs['region']  # Replace with your desired region
+        'region': instance_configs['region']
     }
 
     try:
@@ -33,7 +33,7 @@ async def create_cloudsql_instance(credentials, instance_configs):
     if not instance_exists:
         try:
             request = sqladmin.instances().insert(
-                project=instance_configs['project_id'],  # Replace with your project ID
+                project=instance_configs['project_id'],
                 body=instance_body
             )
             response = request.execute()
@@ -44,11 +44,11 @@ async def create_cloudsql_instance(credentials, instance_configs):
         instance_created = False
 
     database_body = {
-        'name': instance_configs['database_name'],  # The name of the database
+        'name': instance_configs['database_name'],
     }
 
     try:
-        # Check if database exists
+        # Checking if database exists
         sqladmin.databases().get(
             project=instance_configs['project_id'],
             instance=instance_configs['instance_name'],
