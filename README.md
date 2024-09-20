@@ -32,10 +32,10 @@ This section guides you through setting up the Google Cloud infrastructure neces
 ### Project Setup
 
 1. **Create a Virtual Environment**:  
-   Create a virtual environment and install FastAPI and Uvicorn:
+   Create a virtual environment and install required libraries:
 
     ```sh
-    pip install fastapi 'uvicorn[standard]'
+    pip install -r setup/requirements.txt
     ```
 
 2. **Clone the Repository**:  
