@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from fastapi.responses import JSONResponse
-import app.crud as crud
-import app.schema as schema
-from app.database import get_db
-from app.dependencies import get_current_role
+import core.backend.app.crud as crud
+import core.backend.app.schema as schema
+from core.backend.app.database import get_db
+from core.backend.app.dependencies import get_current_role
 
 router = APIRouter()
 

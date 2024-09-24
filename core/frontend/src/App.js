@@ -18,8 +18,8 @@ import 'semantic-ui-css/semantic.min.css';
 import './assets/styles/App.css';
 import { init } from './services/api';
 
-const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-
+// const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+const clientId ="689446129843-8l21aaj63jnrhm11jau5n61gcp8hnnkh.apps.googleusercontent.com"
 const AppRoutes = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === '/';

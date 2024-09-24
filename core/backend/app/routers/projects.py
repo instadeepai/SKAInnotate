@@ -12,11 +12,11 @@ from fastapi.responses import StreamingResponse
 from io import StringIO, BytesIO
 import xml.etree.ElementTree as ET
 
-import app.crud as crud
-import app.schema as schema
-import app.model as model
-from app.database import get_db
-from app.utils import get_final_annotation
+import core.backend.app.crud as crud
+import core.backend.app.schema as schema
+import core.backend.app.model as model
+from core.backend.app.database import get_db
+from core.backend.app.utils import get_final_annotation
 router = APIRouter()
 
 @router.get("/", response_model=List[schema.Project])

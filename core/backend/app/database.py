@@ -8,9 +8,9 @@ from sqlalchemy.orm import sessionmaker, Session
 from google.cloud.sql.connector import Connector
 from dotenv import load_dotenv
 
-import app.crud as crud
-from app.model import Role, User, Base
-import app.schema as schema
+import core.backend.app.crud as crud
+from core.backend.app.model import Role, User, Base
+import core.backend.app.schema as schema
 
 load_dotenv()
 

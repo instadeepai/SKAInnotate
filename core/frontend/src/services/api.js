@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // const BASE_API_URL = 'http://127.0.0.1:8000';
-const BASE_API_URL = process.env.REACT_APP_BASE_API_URL;
+const BASE_API_URL = process.env.REACT_APP_BASE_API_URL || "";
 
 export const init = () => {
   return axios.get(`${BASE_API_URL}/`);

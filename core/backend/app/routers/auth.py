@@ -8,10 +8,10 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from dotenv import load_dotenv
 
-from app.dependencies import create_access_token
-from app import schema
-from app import crud
-from app.database import get_db
+from core.backend.app.dependencies import create_access_token
+from core.backend.app import schema
+from core.backend.app import crud
+from core.backend.app.database import get_db
 
 load_dotenv()
 
