@@ -60,11 +60,11 @@ This section guides you through setting up the Google Cloud infrastructure neces
 1. **Cloud SQL Configuration**:  
    Set up the Cloud SQL instance and provide necessary details like instance name, region, database name, user, and password.
 
-   If you need to create a new Google Cloud SQL Instance, refer to the [Cloud SQL guide](SKAInnotate/setup/docs/setup_sql.md)
+   If you need to create a new Google Cloud SQL Instance, refer to the [Cloud SQL guide](setup/docs/setup_sql.md)
 
 ### Google Authentication Setup
 
-Set up a Google Cloud OAuth 2.0 authentication for the application and provide Client ID in setup form. Detailed instructions on how to do this [here](SKAInnotate/setup/docs/setup_authentication.md)
+Set up a Google Cloud OAuth 2.0 authentication for the application and provide Client ID in setup form. Detailed instructions on [Authentication setup](setup/docs/setup_authentication.md)
 
 ### Container Image Setup
 
