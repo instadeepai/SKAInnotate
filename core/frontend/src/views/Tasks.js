@@ -3,7 +3,7 @@ import { Loader, Message, Button, Icon, Dropdown, Sidebar, Segment } from 'seman
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '../UserContext';
 import ProjectStats from "../components/projectStatistics";
-import { fetchTasks, UploadTaskFromCSV, assignTasks, fetchReviewers, fetchReviewersbyTask, exportAnnotations, deleteTask, assignTaskToReviewer, unAssignTaskToReviewer } from '../services/api';
+import { fetchTasks, uploadTaskFromCSV, assignTasks, fetchReviewers, fetchReviewersbyTask, exportAnnotations, deleteTask, assignTaskToReviewer, unAssignTaskToReviewer } from '../services/api';
 import AnnotatorTasksList from './AnnotatorTasks';
 import AdminTasksList from './AdminTasks';
 import { saveAs } from 'file-saver';
@@ -135,7 +135,7 @@ const TasksPage = () => {
     const formData = new FormData();
     formData.append('file', csvFile);
     try {
-      await UploadTaskFromCSV(projectId, formData);
+      await uploadTaskFromCSV(projectId, formData);
       const response = await fetchTasks(projectId, user.user_info.user_id, role);
       setTasks(response.data);
       setFilteredTasks(response.data);

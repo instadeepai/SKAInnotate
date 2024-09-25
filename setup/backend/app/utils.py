@@ -5,6 +5,8 @@ from google.cloud import storage
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google.oauth2 import service_account
+from google.auth import default
+from google.auth.transport.requests import Request
 
 # service_account_file = os.getenv("SERVICE_ACCOUNT_FILE")
 # credentials = None
@@ -76,7 +78,9 @@ def create_cloudsql_instance(service_account_file, project_id, instance_name, re
       'databaseVersion': 'POSTGRES_15',
       'region': region
   }
+  
   sqladmin = get_sqladmin_client(service_account_file)
+
   # Check if the Cloud SQL instance already exists
   try:
     sqladmin.instances().get(project=project_id, instance=instance_name).execute()
@@ -99,7 +103,6 @@ def create_cloudsql_instance(service_account_file, project_id, instance_name, re
   else:
     instance_created = False
 
-  # Check if the database exists
   try:
     sqladmin.databases().get(project=project_id, instance=instance_name, database=database_name).execute()
     database_exists = True
@@ -117,26 +120,50 @@ def create_cloudsql_instance(service_account_file, project_id, instance_name, re
     except HttpError as e:
       return {"error": f"Failed to create database: {str(e)}"}
 
-    # Check if the user already exists
-    try:
-      users_list = sqladmin.users().list(project=project_id, instance=instance_name).execute()
-      user_exists = any(user['name'] == db_user for user in users_list.get('items', []))
-    except HttpError as e:
-      return {"error": f"Failed to check user existence: {str(e)}"}
+  # Check if the user already exists
+  try:
+    users_list = sqladmin.users().list(project=project_id, instance=instance_name).execute()
+    user_exists = any(user['name'] == db_user for user in users_list.get('items', []))
+  except HttpError as e:
+    return {"error": f"Failed to check user existence: {str(e)}"}
 
-    # Create the user if it doesn't exist
-    if not user_exists:
-      user_body = {
+  # Create the user if it doesn't exist
+  if not user_exists:
+    user_body = {
         "name": db_user,
         "password": db_pass,
         "host": "%"
-      }
-      try:
-        sqladmin.users().insert(project=project_id, instance=instance_name, body=user_body).execute()
-        user_created = True
-      except HttpError as e:
-        return {"error": f"Failed to create user: {str(e)}"}
-    else:
-      user_created = False
+    }
+    try:
+      sqladmin.users().insert(project=project_id, instance=instance_name, body=user_body).execute()
+      user_created = True
+    except HttpError as e:
+      return {"error": f"Failed to create user: {str(e)}"}
+  else:
+    user_created = False
 
-    return instance_created, database_exists, user_created
+  # Check if the default postgres user exists and update password if necessary
+  try:
+    postgres_user = next(user for user in users_list.get('items', []) if user['name'] == 'postgres')
+    if postgres_user and 'password' in postgres_user:
+        # Update the password if the user exists
+      update_body = {
+          "name": "postgres",
+          "password": db_pass,
+          "host": "%"
+      }
+      sqladmin.users().update(project=project_id, instance=instance_name, body=update_body).execute()
+  except StopIteration:
+    # Postgres user does not exist, create it
+    user_body = {
+        "name": "postgres",
+        "password": db_pass,
+        "host": "%"
+    }
+    try:
+      sqladmin.users().insert(project=project_id, instance=instance_name, body=user_body).execute()
+    except HttpError as e:
+      return {"error": f"Failed to create postgres user: {str(e)}"}
+
+  return instance_created, database_exists, user_created
+

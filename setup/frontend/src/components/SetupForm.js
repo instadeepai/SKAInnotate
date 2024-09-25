@@ -8,6 +8,7 @@ const SetupForm = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Reusable input field component
   const InputField = ({ label, id, type = 'text', required = true }) => (
     <Form.Field required={required}>
       <label>{label}</label>
@@ -15,32 +16,18 @@ const SetupForm = () => {
     </Form.Field>
   );
 
-  // Handle form submission
-  const setupInfra = async (event) => {
+  // Form submission handler
+  const setupInfrastructure = async (event) => {
     event.preventDefault();
     setLoading(true);
     setSuccess(false);
-    setMessage(''); // Reset the message
+    setMessage(''); 
 
-    const form = document.getElementById('setup-form');
-    const formData = new FormData(form);
-
-    // Retrieve individual form values
+    const formData = new FormData(event.target);
     const formValues = Object.fromEntries(formData.entries());
 
     try {
       setMessage('Setting up infrastructure...');
-      // const projectResponse = await setProject({ project_id: formValues.project_id, service_account_file: formValues.service_account_file });
-
-      const sqlResponse = await createSQLInstance({
-        project_id: formValues.project_id,
-        service_account_file: formValues.service_account_file,
-        instance_name: formValues.instance_name,
-        region: formValues.region,
-        database_name: formValues.database_name,
-        db_user: formValues.db_user,
-        db_pass: formValues.db_pass,
-      });
 
       const deployResponse = await deployApp({
         project_id: formValues.project_id,
@@ -68,16 +55,21 @@ const SetupForm = () => {
     <Segment padded="very" className="setup-segment">
       <Header as="h2" textAlign="center">
         <Icon name="cloud" />
-        Google Cloud Infrastructure Setup
+          Deploy SKAInnotate
       </Header>
-      <Form id="setup-form" onSubmit={setupInfra} loading={loading} success={success}>
-        <Header as="h3">Project and Service Account Setup</Header>
+
+      <Form id="setup-form" onSubmit={setupInfrastructure} loading={loading} success={success}>
+        
+        <Header as="h3">Project Setup</Header>
         <InputField label="Project ID" id="project_id" />
-        <InputField label="Service Account File Path" id="service_account_file" />
 
         <Divider />
 
         <Header as="h3">Cloud SQL Setup</Header>
+        <p>
+          For detailed instructions on setting up a Google Cloud SQL instance, please refer to the 
+          <a href="https://github.com/instadeepai/SKAInnotate?tab=readme-ov-file#database-setup" target="_blank" rel="noopener noreferrer"> Google SQL setup for SKAInnotate</a>.
+        </p>
         <Grid columns={2} stackable>
           <Grid.Row>
             <Grid.Column>
@@ -105,6 +97,10 @@ const SetupForm = () => {
         <Divider />
 
         <Header as="h3">Google Authentication Setup</Header>
+          <p>
+            For more information on setting up a Google Cloud OAuth 2.0 authentication, refer to the 
+            <a href="https://github.com/instadeepai/SKAInnotate?tab=readme-ov-file#google-authentication-setup" target="_blank" rel="noopener noreferrer"> Google OAuth for SKAInnotate</a>.
+          </p>
         <InputField label="Google Client ID" id="google_client_id" />
 
         <Divider />
@@ -113,22 +109,25 @@ const SetupForm = () => {
         <InputField label="Super User Username" id="superuser_username" />
         <InputField label="Super User Email" id="superuser_email" type="email" />
 
+        <Divider />
+
         <Header as="h3">Cloud Run Setup</Header>
         <InputField label="Service Name" id="service_name" />
 
         <Button color="blue" fluid type="submit">
-          <Icon name="check circle" /> Setup Infrastructure
+          <Icon name="check circle" /> Deploy
         </Button>
       </Form>
 
-      {/* Message Display */}
-      <Message
-        hidden={!message}
-        success={success}
-        error={!success}
-        content={message}
-        style={{ marginTop: '20px' }}
-      />
+      {/* Display success or error message */}
+      {message && (
+        <Message
+          success={success}
+          error={!success}
+          content={message}
+          style={{ marginTop: '20px' }}
+        />
+      )}
     </Segment>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useReducer } from 'react';
 import { Button, Icon } from 'semantic-ui-react';
-import { createProject, updateProject, deleteProject, fetchProjects, UploadTaskFromCSV } from '../services/api';
+import { createProject, updateProject, deleteProject, fetchProjects, uploadTaskFromCSV } from '../services/api';
 import ProjectGrid from '../components/ProjectGrid';
 import CreateProjectModal from '../components/CreateProjectModal';
 import RoleSelectionModal from '../components/RoleSelectionModal';
@@ -86,7 +86,7 @@ const ProjectsPage = () => {
     if (csvFile) {
       const formData = new FormData();
       formData.append('file', csvFile);
-      await UploadTaskFromCSV(projectResponse.data.project_id, formData);
+      await uploadTaskFromCSV(projectResponse.data.project_id, formData);
     }
 
     fetchAndSetProjects(); // Refetch projects after creating or updating one

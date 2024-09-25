@@ -7,7 +7,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, TIMESTAMP, Table, Te
 from sqlalchemy.orm import relationship, declarative_base
 
 Base = declarative_base()
-import app.schema as schema
+import core.backend.app.schema as schema
 
 # Association table for the many-to-many relationship between users and roles
 # We want user to potentially have more than one role
