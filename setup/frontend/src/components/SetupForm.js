@@ -26,30 +26,38 @@ const SetupForm = () => {
     const formData = new FormData(event.target);
     const formValues = Object.fromEntries(formData.entries());
 
-    try {
-      setMessage('Setting up infrastructure...');
+try {
+  setMessage('Application deployment in progress...');
 
-      const deployResponse = await deployApp({
-        project_id: formValues.project_id,
-        instance_name: formValues.instance_name,
-        region: formValues.region,
-        db_name: formValues.database_name,
-        db_user: formValues.db_user,
-        db_pass: formValues.db_pass,
-        clientId: formValues.google_client_id,
-        service_name: formValues.service_name,
-        superuser_email: formValues.superuser_email,
-        superuser_username: formValues.superuser_username,
-      });
+  const deployResponse = await deployApp({
+    project_id: formValues.project_id,
+    instance_name: formValues.instance_name,
+    region: formValues.region,
+    db_name: formValues.database_name,
+    db_user: formValues.db_user,
+    db_pass: formValues.db_pass,
+    clientId: formValues.google_client_id,
+    service_name: formValues.service_name,
+    superuser_email: formValues.superuser_email,
+    superuser_username: formValues.superuser_username,
+  });
 
-      setMessage('Infrastructure setup completed successfully!');
-      setSuccess(true);
-    } catch (error) {
-      setMessage(`Error setting up infrastructure: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Check if 'service_name' is provided in the response
+  console.log("Deploy response: ", deployResponse, deployResponse.service_url)
+  if (deployResponse && deployResponse.service_url) {
+    const service_url = deployResponse.service_url;
+    setMessage(`App deployed successfully at ${service_url}!`);
+    setSuccess(true);
+  } else {
+    setMessage("Application not deployed");
+  }
+  } catch (error) {
+  setMessage(`Error deploying application: ${error.message}`);
+  } finally {
+  setLoading(false);
+  }
+}
+
 
   return (
     <Segment padded="very" className="setup-segment">

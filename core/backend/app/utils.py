@@ -15,3 +15,13 @@ def get_final_annotation(annotations: List[str], review: Optional[str]) -> Any:
     return majority_annotations[0]
   
   return None
+
+def convert_origin_to_list(origins):
+  if origins is None:
+    return []
+  elif isinstance(origins, str):
+    return [origin.strip() for origin in origins.split(",")]
+  elif isinstance(origins, list):
+    return origins
+  else:
+    raise ValueError("ORIGINS should be either a string or a list")

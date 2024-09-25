@@ -5,6 +5,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from jose import JWTError, jwt
+from core.backend.app import utils
 from core.backend.app.routers import (auth, 
                       users, 
                       tasks, 
@@ -18,14 +19,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ORIGINS = os.getenv("ORIGINS")
+ORIGINS = utils.convert_origin_to_list(os.getenv("ORIGINS"))
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="core/frontend/build/static"), name="static")
 app.add_middleware(SessionMiddleware, secret_key=os.urandom(24))
-
+print("Origins: ", ORIGINS)
 app.add_middleware(
   CORSMiddleware,
-  allow_origins=['http://127.0.0.1:8000'], 
+  allow_origins=ORIGINS, 
   allow_credentials=True,
   allow_methods=["*"],
   allow_headers=["*"],
