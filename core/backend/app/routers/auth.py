@@ -8,10 +8,10 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from dotenv import load_dotenv
 
-from app.dependencies import create_access_token
-from app import schema
-from app import crud
-from app.database import get_db
+from core.backend.app.dependencies import create_access_token
+from core.backend.app import schema
+from core.backend.app import crud
+from core.backend.app.database import get_db
 
 load_dotenv()
 
@@ -32,6 +32,7 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 @router.post("/callback")
 async def auth_callback(token: dict, db: Session = Depends(get_db)):
   """Handle the OAuth 2.0 callback and fetch user information."""
+  print("Google client ID: inside callback: ", GOOGLE_CLIENT_ID)
   try:
     idinfo = id_token.verify_oauth2_token(token["token"], google_requests.Request(), GOOGLE_CLIENT_ID)
     logger.info("ID token verified successfully.")

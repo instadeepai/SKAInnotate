@@ -4,7 +4,9 @@
 
 SKAInnotate consists of two primary components:
 
-1. **Google Cloud Infrastructure Setup**: This includes setting up the project, database, authentication, container image, and Cloud Run deployment. It can also run locally on [localhost](http://127.0.0.1:8000) or [http://localhost:8000](http://localhost:8000).
+1. **Google Cloud Infrastructure Setup**: This includes setting up the project, database, authentication, container image, and Cloud Run deployment.
+
+The setup can also be run locally at http://127.0.0.1 or http://localhost.
    
 2. **Web Hosted Application for Data Annotation**: A user-friendly web application designed for data annotation tasks with roles for annotators, reviewers, and admins.
 
@@ -35,7 +37,7 @@ This section guides you through setting up the Google Cloud infrastructure neces
    Create a virtual environment and install required libraries:
 
     ```sh
-    pip install -r setup/requirements.txt
+    pip install -r requirements.txt
     ```
 
 2. **Clone the Repository**:  
@@ -50,7 +52,7 @@ This section guides you through setting up the Google Cloud infrastructure neces
    Start the FastAPI server to initiate the project setup:
 
     ```sh
-    uvicorn setup.app.main:app --reload --port 8000
+    uvicorn setup.backend.app.main:app --reload --port <PORT>
     ```
 
 ### Database Setup
@@ -58,26 +60,21 @@ This section guides you through setting up the Google Cloud infrastructure neces
 1. **Cloud SQL Configuration**:  
    Set up the Cloud SQL instance and provide necessary details like instance name, region, database name, user, and password.
 
+   If you need to create a new Google Cloud SQL Instance, refer to the [Cloud SQL guide](SKAInnotate/setup/docs/setup_sql.md)
+
 ### Google Authentication Setup
 
-1. **Enable OAuth 2.0 APIs**:  
-   - In Google Cloud Console, navigate to `APIs & Services > Library`.
-   - Search for **Google Identity Toolkit API** or **OAuth 2.0 API**, and click `Enable`.
-
-2. **Configure OAuth 2.0 Credentials**:
-   - Create OAuth 2.0 Client IDs in `APIs & Services > Credentials`.
-   - Fill in the necessary details for OAuth consent screen and set the **Authorized JavaScript Origins** to your web application URL.
-   - Copy the Client ID and Client Secret for later use.
+Set up a Google Cloud OAuth 2.0 authentication for the application and provide Client ID in setup form. Detailed instructions on how to do this [here](SKAInnotate/setup/docs/setup_authentication.md)
 
 ### Container Image Setup
 
-1. **Build and Push Container Image**:  
-   Choose your build option (`local`, `cloud`, or `none`). The container image will either be built locally or using `gcloud builds submit` and pushed to Google Artifact Registry.
+<!-- 1. **Build and Push Container Image**:  
+   Choose your build option (`local`, `cloud`, or `none`). The container image will either be built locally or using `gcloud builds submit` and pushed to Google Artifact Registry. -->
 
 ### Cloud Run Deployment
 
 1. **Deploy to Cloud Run**:  
-   Deploy the containerized application to Cloud Run by providing a service name and region. The deployment URL can be found in the Cloud Run console.
+   Deploy the containerized application to Cloud Run by providing a service name. The deployment URL can be found in the Cloud Run console.
 
 2. **Update OAuth 2.0 Credentials**:  
    After deployment, update the **Authorized JavaScript Origins** in your OAuth 2.0 settings with the frontend deployment URL.

@@ -5,8 +5,8 @@ from typing import List, Optional
 import datetime
 import json
 
-import app.schema as schema
-from app.model import (User, 
+import core.backend.app.schema as schema
+from core.backend.app.model import (User, 
                       Role,
                       Task,
                       Annotation,
@@ -15,7 +15,7 @@ from app.model import (User,
                       Project,
                       user_tasks,
                       user_roles)
-from app.assignment import round_robin_algorithm
+from core.backend.app.assignment import round_robin_algorithm
 
 # Project CRUD operations
 def get_project(db: Session, project_id: int):

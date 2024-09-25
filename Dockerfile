@@ -11,11 +11,11 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install -v --no-cache-dir -r /app/requirements.txt
 
 # Copy the backend and frontend directories into the container
-COPY core/backend /app/backend
-# COPY core/frontend /app/frontend
+COPY core/backend /app/core/backend
+COPY core/frontend /app/core/frontend
 
 # Set the environment variables
-ENV PYTHONPATH=/app/backend
+# ENV PYTHONPATH=/app/
 # ENV PYTHONPATH=/app/backend:/app/frontend
 ENV PATH=/root/.local/bin:$PATH
 
@@ -26,4 +26,4 @@ ENV PORT=8080
 EXPOSE 8080
 
 # Command to run the application
-CMD ["gunicorn", "app.main:app", "--workers", "2", "--worker-class", "uvicorn.workers.UvicornWorker"]
+CMD ["gunicorn", "core.backend.app.main:app", "--workers", "2", "--worker-class", "uvicorn.workers.UvicornWorker"]

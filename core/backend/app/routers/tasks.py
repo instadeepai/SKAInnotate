@@ -6,11 +6,11 @@ from fastapi.requests import Request
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 
-import app.crud as crud
-import app.schema as schema
-import app.model as model
-from app.database import get_db
-from app.dependencies import get_current_role, get_current_user
+import core.backend.app.crud as crud
+import core.backend.app.schema as schema
+import core.backend.app.model as model
+from core.backend.app.database import get_db
+from core.backend.app.dependencies import get_current_role, get_current_user
 
 router = APIRouter()
 

@@ -1,8 +1,0 @@
-fastapi==0.115.0
-google-api-python-client==2.146.0
-google-cloud-storage==2.18.2
-itsdangerous==2.2.0
-Jinja2==3.1.4
-python-multipart==0.0.9
-PyYAML==6.0.2
-uvicorn==0.30.1

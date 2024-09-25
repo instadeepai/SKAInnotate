@@ -3,8 +3,9 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from jose import JWTError, jwt
-from app.routers import (auth, 
+from core.backend.app.routers import (auth, 
                       users, 
                       tasks, 
                       annotations, 
@@ -19,12 +20,12 @@ load_dotenv()
 
 ORIGINS = os.getenv("ORIGINS")
 app = FastAPI()
-
+app.mount("/static", StaticFiles(directory="core/frontend/build/static"), name="static")
 app.add_middleware(SessionMiddleware, secret_key=os.urandom(24))
 
 app.add_middleware(
   CORSMiddleware,
-  allow_origins=ORIGINS, 
+  allow_origins=['http://127.0.0.1:8000'], 
   allow_credentials=True,
   allow_methods=["*"],
   allow_headers=["*"],

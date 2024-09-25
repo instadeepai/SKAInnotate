@@ -1,0 +1,54 @@
+/* Overall container */
+.setup-segment {
+    max-width: 700px;
+    margin: auto;
+    background-color: #fff;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings */
+.setup-segment h2
+{
+    color: #333;
+    text-align: center;
+}
+.setup-segment h3 {
+    color: #333;
+}
+
+/* Form fields */
+.ui.form input {
+    font-size: 14px;
+    padding: 10px;
+    padding-bottom: 20px;
+    border: 1px solid #ccc !important;
+    border-radius: 5px !important;
+}
+
+
+.ui.button {
+    border-radius: 25px !important;
+    padding: 12px 20px !important;
+    font-size: 16px !important;
+}
+
+/* Message styling */
+.message {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.message.error {
+    color: #ff0000;
+}
+
+.message.success {
+    color: #28a745;
+}
+
+/* Divider styling */
+.ui.divider {
+    margin: 20px 0 !important;
+}

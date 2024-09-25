@@ -5,9 +5,9 @@ from fastapi.responses import StreamingResponse
 from io import StringIO, BytesIO
 import xml.etree.ElementTree as ET
 
-import app.crud as crud
-import app.schema as schema
-from app.database import get_db
+import core.backend.app.crud as crud
+import core.backend.app.schema as schema
+from core.backend.app.database import get_db
 
 router = APIRouter()
 
