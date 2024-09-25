@@ -33,16 +33,6 @@ export const createSQLInstance = async (sqlInstanceData) => {
   }
 };
 
-// export const createProject = async (projectData) => {
-//   try {
-//     const response = await axios.post(`${BASE_API_URL}/projects/`, projectData);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error in createProject:', error);
-//     throw error;
-//   }
-// }
-
 export const deployApp = async (configData) => {
   try {
     const response = await axios.post(`${BASE_API_URL}/deploy`, configData);
