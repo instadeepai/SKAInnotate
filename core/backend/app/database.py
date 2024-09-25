@@ -48,7 +48,6 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
 def add_initial_roles(db: Session):
   roles = schema.UserRole._member_names_ #["admin", "annotator", "reviewer"]
   for role_name in roles:

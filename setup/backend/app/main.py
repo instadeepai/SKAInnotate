@@ -94,7 +94,9 @@ async def setup_cloud_run(deployData: schema.DeployAppData):
   container_image_backend = cfg['CONTAINER_IMAGE_BACKEND']
   container_image_frontend = cfg['CONTAINER_IMAGE_FRONTEND']
 
-  envs_backend =  {"DB_NAME": deployData.db_name,
+  envs_backend =  {"PROJECT_ID": deployData.project_id,
+                  "REGION": deployData.region,
+                  "DB_NAME": deployData.db_name,
                   "DB_PASS": deployData.db_pass, 
                   "DB_USER": deployData.db_user,
                   "INSTANCE_NAME": deployData.instance_name,
