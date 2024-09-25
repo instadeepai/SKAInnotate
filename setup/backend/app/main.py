@@ -26,7 +26,7 @@ app.mount("/static", StaticFiles(directory="setup/frontend/build/static"), name=
 app.add_middleware(SessionMiddleware, secret_key=os.urandom(24))
 app.add_middleware(
   CORSMiddleware,
-  allow_origins=["http://127.0.0.1:8800", "http://localhost:8800"], 
+  allow_origins=["http://127.0.0.1", "http://localhost"], 
   allow_credentials=True,
   allow_methods=["*"],
   allow_headers=["*"],
