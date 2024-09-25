@@ -96,13 +96,6 @@ The SKAInnotate web application facilitates data annotation tasks. It includes r
    https://<service-name>-<hashing>-<region>.a.run.app
    ```
 
-2. **Update OAuth Redirect URI**:  
-   Add the following redirect URI to your OAuth settings:
-
-   ```plaintext
-   https://<service-name>-<hashing>-<region>.a.run.app/auth/oauth2callback
-   ```
-
 ### Roles and Functionalities
 
 - **Admins**:  
