@@ -14,20 +14,27 @@ This document provides step-by-step instructions on how to create a Google Cloud
 You can create a Cloud SQL instance using the Google Cloud Console or via the command line.
 
 ### Using Google Cloud Console
-
+#### Create Instance
 1. In the Google Cloud Console, navigate to **SQL**.
 2. Click on **Create Instance**.
 3. Select **PostgreSQL** (or your desired database type).
 4. Enter the instance ID, password for the default `postgres` user, and configure other settings (region, machine type, etc.).
 5. Click **Create**.
 
-### Using Command Line
+#### Create User
+1. Once the instance is created, click on your instance to view its details.
+2. In the left-hand menu, click **Users**.
+3. Click **Add User Account**.
+4. Enter the following details:
+   - **User Name**: Choose a username (e.g., `myuser`).
+   - **Password**: Set a password for this user.
+5. Click **Add** to create the user.
 
-Alternatively, you can use the following command:
+*Note*: It’s good practice to avoid using the default `postgres` user for your application and instead create a dedicated user.
 
-```bash
-gcloud sql instances create INSTANCE_NAME \
-    --database-version=POSTGRES_15 \
-    --tier=db-f1-micro \
-    --region=REGION \
-    --root-password=YOUR_PASSWORD
+#### Create Database
+1. In the left-hand menu, click **Databases**.
+2. Click **Create Database**.
+3. Enter the following details:
+   - **Database Name**: Provide a name for your database (e.g., `skainnotate_db`).
+4. Click **Create** to set up the database.
