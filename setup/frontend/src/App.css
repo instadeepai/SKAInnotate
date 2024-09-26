@@ -23,19 +23,15 @@ form {
   box-sizing: border-box;
 }
 
-/* Section spacing within form */
 .form-section {
   width: 100px;
-  /* Each form section takes up roughly half the width */
   background-color: #2185d0;;
   margin-bottom: 20px;
   box-sizing: border-box;
 }
 
-/* Input field styling */
 input {
   width: 100%;
-  /* Full width for input fields */
   padding: 12px;
   font-size: 1rem;
   border: 1px solid #ccc;
@@ -43,34 +39,27 @@ input {
   transition: border-color 0.3s ease;
 }
 
-/* Input focus effect */
 input:focus {
   border-color: #007BFF;
-  /* Blue border on focus */
   outline: none;
 }
 
-/* Button styling */
 button {
   padding: 12px;
   background-color: #007BFF;
-  /* Blue button background */
   color: white;
   border: none;
   cursor: pointer;
   border-radius: 4px;
   font-size: 1rem;
   width: 100%;
-  /* Button takes full width */
   transition: background-color 0.3s ease;
 }
 
-/* Hover effect for button */
 button:hover {
   background-color: #0056b3;
 }
 
-/* Error message styling */
 .error {
   color: red;
   font-size: 0.9em;
