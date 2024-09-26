@@ -10,10 +10,10 @@ const SetupForm = () => {
   const [success, setSuccess] = useState(false);
 
   // Reusable input field component
-  const InputField = ({ label, id, type = 'text', required = true }) => (
+  const InputField = ({ label, id, type = 'text', required = true, placeholder = '' }) => (
     <Form.Field required={required}>
       <label>{label}</label>
-      <input type={type} id={id} name={id} />
+      <input type={type} id={id} name={id} placeholder = {placeholder}/>
     </Form.Field>
   );
 
@@ -46,13 +46,13 @@ try {
   // Check if 'service_name' is provided in the response
   if (deployResponse && deployResponse.service_url) {
     const service_url = deployResponse.service_url;
-    setMessage(`App deployed successfully at ${service_url}!`);
+    setMessage(`App launched successfully at ${service_url}!`);
     setSuccess(true);
   } else {
-    setMessage("Application not deployed");
+    setMessage("Application unable to launch");
   }
   } catch (error) {
-  setMessage(`Error deploying application: ${error.message}`);
+  setMessage(`Error launching application: ${error.message}`);
   } finally {
   setLoading(false);
   }
@@ -63,13 +63,13 @@ try {
     <Segment padded="very" className="setup-segment">
       <Header as="h2" textAlign="center">
         <Icon name="rocket" />
-          Deploy SKAInnotate
+          Let's Launch Your SKAInnotate Journey!
       </Header>
 
       <Form id="setup-form" onSubmit={setupInfrastructure} loading={loading} success={success}>
         
         <Header as="h3">Project Setup</Header>
-        <InputField label="Project ID" id="project_id" />
+        <InputField label="Project ID" id="project_id" placeholder="my-project-1"/>
 
         <Divider />
 
@@ -81,23 +81,23 @@ try {
         <Grid columns={2} stackable>
           <Grid.Row>
             <Grid.Column>
-              <InputField label="Instance Name" id="instance_name" className="field-margin"/>
+              <InputField label="Instance Name" id="instance_name" className="field-margin" placeholder="my-db-instance"/>
             </Grid.Column>
             <Grid.Column>
-              <InputField label="Region" id="region" className="field-margin"/>
-            </Grid.Column>
-          </Grid.Row>
-          <Grid.Row>
-            <Grid.Column>
-              <InputField label="Database Name" id="database_name" />
-            </Grid.Column>
-            <Grid.Column>
-              <InputField label="Database User" id="db_user" />
+              <InputField label="Region" id="region" className="field-margin" placeholder="us-central1"/>
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
             <Grid.Column>
-              <InputField label="Database Password" id="db_pass" type="password" />
+              <InputField label="Database Schema Name" id="database_name" placeholder="my-database"/>
+            </Grid.Column>
+            <Grid.Column>
+              <InputField label="Database Username" id="db_user"  placeholder="user1"/>
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column>
+              <InputField label="Database Password" id="db_pass" type="password"/>
             </Grid.Column>
           </Grid.Row>
         </Grid>
@@ -109,21 +109,21 @@ try {
             For more information on setting up a Google Cloud OAuth 2.0 authentication, refer to the 
             <a href="https://github.com/instadeepai/SKAInnotate?tab=readme-ov-file#google-authentication-setup" target="_blank" rel="noopener noreferrer"> Google OAuth for SKAInnotate</a>.
           </p>
-        <InputField label="Google Client ID" id="google_client_id" />
+        <InputField label="OAuth 2.0 Client ID" id="google_client_id" placeholder="user1"/>
 
         <Divider />
 
-        <Header as="h3">Super User Setup</Header>
-        <InputField label="Super User Username" id="superuser_username" />
-        <InputField label="Super User Email" id="superuser_email" type="email" />
+        <Header as="h3">Admin Setup</Header>
+        <InputField label="Username" id="superuser_username" placeholder="john"/>
+        <InputField label="Email Address" id="superuser_email" type="email" placeholder="johndoe@mail.com"/>
 
         <Divider />
 
         <Header as="h3">Cloud Run Setup</Header>
-        <InputField label="Service Name" id="service_name" />
+        <InputField label="Service Name" id="service_name" placeholder="my-annotation-app"/>
 
         <Button color="blue" fluid type="submit">
-          <Icon name="check circle" /> Deploy
+          <Icon name="check circle" /> Launch
         </Button>
       </Form>
 

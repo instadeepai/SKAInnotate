@@ -101,7 +101,8 @@ async def setup_cloud_run(deployData: schema.DeployAppData):
                   "DB_USER": deployData.db_user,
                   "INSTANCE_NAME": deployData.instance_name,
                   "SUPERUSER_EMAIL": deployData.superuser_email,
-                  "SUPERUSER_USERNAME": deployData.superuser_username
+                  "SUPERUSER_USERNAME": deployData.superuser_username,
+                  "GOOGLE_CLIENT_ID": deployData.clientId
                   }
   
   envs_frontend = {"REACT_APP_GOOGLE_CLIENT_ID": deployData.clientId}
@@ -114,7 +115,7 @@ async def setup_cloud_run(deployData: schema.DeployAppData):
                  instance_connection_name=instance_connection_name,
                  region=deployData.region,
                  env_vars=envs_frontend_str)
-    
+
     logger.info("Deploying backend service")
     envs_backend_str=",".join([f'{i}={v}' for i, v in envs_backend.items()])
     utils.run_deploy(service_name=f'{deployData.service_name}-backend',
