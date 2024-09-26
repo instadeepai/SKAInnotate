@@ -1,12 +1,12 @@
 
 .App {
   font-family: 'Arial', sans-serif;
-  display: flex;
+  display: grid;
   justify-content: center;
   align-items: center;
   padding: 20px;
   height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #c7e1fd;
   box-sizing: border-box;
 }
 
@@ -27,6 +27,7 @@ form {
 .form-section {
   width: 100px;
   /* Each form section takes up roughly half the width */
+  background-color: #2185d0;;
   margin-bottom: 20px;
   box-sizing: border-box;
 }

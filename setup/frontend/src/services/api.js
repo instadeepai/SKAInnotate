@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const BASE_API_URL = process.env.REACT_APP_API_URL || '';
-
+console.log("Base API: ", BASE_API_URL)
 export const init = async () => {
   try {
     const response = await axios.get(`${BASE_API_URL}/`);

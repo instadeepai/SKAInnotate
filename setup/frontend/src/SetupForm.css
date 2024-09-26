@@ -8,10 +8,14 @@
 }
 
 /* Headings */
+.setup-segment{
+    background-color:  #2185d0;
+}
+
 .setup-segment h2
 {
-    color: #333;
     text-align: center;
+    color: #fff;
 }
 .setup-segment h3 {
     color: #333;
@@ -51,4 +55,8 @@
 /* Divider styling */
 .ui.divider {
     margin: 20px 0 !important;
+}
+
+.setup-form .field-margin {
+    margin-bottom: 20px;
 }

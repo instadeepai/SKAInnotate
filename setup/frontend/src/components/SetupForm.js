@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../SetupForm.css';
 import { setProject, createSQLInstance, deployApp } from '../services/api';
 import { Segment, Button, Form, Message, Header, Divider, Grid, Icon } from 'semantic-ui-react';
+import 'semantic-ui-css/semantic.min.css';
 
 const SetupForm = () => {
   const [message, setMessage] = useState('');
@@ -43,7 +44,6 @@ try {
   });
 
   // Check if 'service_name' is provided in the response
-  console.log("Deploy response: ", deployResponse, deployResponse.service_url)
   if (deployResponse && deployResponse.service_url) {
     const service_url = deployResponse.service_url;
     setMessage(`App deployed successfully at ${service_url}!`);
@@ -62,7 +62,7 @@ try {
   return (
     <Segment padded="very" className="setup-segment">
       <Header as="h2" textAlign="center">
-        <Icon name="cloud" />
+        <Icon name="rocket" />
           Deploy SKAInnotate
       </Header>
 
@@ -81,10 +81,10 @@ try {
         <Grid columns={2} stackable>
           <Grid.Row>
             <Grid.Column>
-              <InputField label="Instance Name" id="instance_name" />
+              <InputField label="Instance Name" id="instance_name" className="field-margin"/>
             </Grid.Column>
             <Grid.Column>
-              <InputField label="Region" id="region" />
+              <InputField label="Region" id="region" className="field-margin"/>
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
