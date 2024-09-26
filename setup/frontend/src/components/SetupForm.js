@@ -28,7 +28,7 @@ const SetupForm = () => {
     const formValues = Object.fromEntries(formData.entries());
 
 try {
-  setMessage('Application deployment in progress...');
+  setMessage('Application launch in progress...');
 
   const deployResponse = await deployApp({
     project_id: formValues.project_id,
@@ -107,9 +107,10 @@ try {
         <Header as="h3">Google Authentication Setup</Header>
           <p>
             For more information on setting up a Google Cloud OAuth 2.0 authentication, refer to the 
-            <a href="https://github.com/instadeepai/SKAInnotate?tab=readme-ov-file#google-authentication-setup" target="_blank" rel="noopener noreferrer"> Google OAuth for SKAInnotate</a>.
+            <a href="https://github.com/instadeepai/SKAInnotate?tab=readme-ov-file#google-authentication-setup" 
+              target="_blank" rel="noopener noreferrer"> Google OAuth for SKAInnotate</a>.
           </p>
-        <InputField label="OAuth 2.0 Client ID" id="google_client_id" placeholder="user1"/>
+        <InputField label="OAuth 2.0 Client ID" id="google_client_id" placeholder="123abc.apps.googleusercontent.com"/>
 
         <Divider />
 
@@ -127,7 +128,6 @@ try {
         </Button>
       </Form>
 
-      {/* Display success or error message */}
       {message && (
         <Message
           success={success}
