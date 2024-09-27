@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ORIGINS = utils.convert_origin_to_list(os.getenv("ORIGINS"))
+ORIGINS = os.getenv("ORIGINS")
 app = FastAPI()
 # app.mount("/static", StaticFiles(directory="core/frontend/build/static"), name="static")
 app.add_middleware(SessionMiddleware, secret_key=os.urandom(24))
