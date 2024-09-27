@@ -32,7 +32,6 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 @router.post("/callback")
 async def auth_callback(token: dict, db: Session = Depends(get_db)):
   """Handle the OAuth 2.0 callback and fetch user information."""
-  print("Google client ID: inside callback: ", GOOGLE_CLIENT_ID)
   try:
     idinfo = id_token.verify_oauth2_token(token["token"], google_requests.Request(), GOOGLE_CLIENT_ID)
     logger.info("ID token verified successfully.")

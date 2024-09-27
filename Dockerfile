@@ -11,14 +11,14 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install -v --no-cache-dir -r /app/requirements.txt
 
 # Copy the rest of the application files
-COPY core /app/core
+COPY core/backend /app/core/backend
 
 # Add a non-root user and switch to it
 RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
 USER appuser
 
 # environment variables
-ENV PYTHONPATH=/app:/app/core/backend:/app/core/frontend
+ENV PYTHONPATH=/app:/app/core/backend
 ENV PATH=/root/.local/bin:$PATH
 ENV HOST=0.0.0.0
 ENV PORT=8080

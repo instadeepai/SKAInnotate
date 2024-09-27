@@ -19,14 +19,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ORIGINS = os.getenv("ORIGINS")
+CORS_ORIGIN = os.getenv("CORS_ORIGIN")
 app = FastAPI()
 # app.mount("/static", StaticFiles(directory="core/frontend/build/static"), name="static")
 app.add_middleware(SessionMiddleware, secret_key=os.urandom(24))
 
 app.add_middleware(
   CORSMiddleware,
-  allow_origins=ORIGINS, 
+  allow_origins=CORS_ORIGIN,
   allow_credentials=True,
   allow_methods=["*"],
   allow_headers=["*"],

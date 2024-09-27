@@ -14,6 +14,7 @@ const Login = () => {
 
   const responseMessage = async (response) => {
     try {
+      console.log("Authentication step: Response credentials: ", response.credential);
       const backendResponse = await verifyTokenCallback({ token: response.credential });
       if (backendResponse.status === 200) {
         let user_info = backendResponse.data;

@@ -32,4 +32,4 @@ gcloud run deploy ${SERVICE_NAME} \
   --region=${REGION} \
   --allow-unauthenticated \
   --add-cloudsql-instances=${SQL_INSTANCE_CONNECTION_NAME} \
-  --update-env-vars=${ENV_VARS}
+  --set-env-vars=${ENV_VARS}

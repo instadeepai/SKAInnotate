@@ -1,7 +1,7 @@
 from typing import List
 import datetime
 import reprlib
-from sqlalchemy.sql import func
+
 import sqlalchemy as sqla
 from sqlalchemy import Column, Integer, String, ForeignKey, TIMESTAMP, Table, Text
 from sqlalchemy.orm import relationship, declarative_base

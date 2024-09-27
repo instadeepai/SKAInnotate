@@ -4,6 +4,8 @@ from typing import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 
 from google.cloud.sql.connector import Connector
 from dotenv import load_dotenv
@@ -69,11 +71,34 @@ def init_admin(db: Session):
   else:
     print("Error: SUPER_USER does not contain 'username' or 'email'")
 
+# def init_db():
+#   Base.metadata.create_all(bind=engine)
+#   with SessionLocal() as db:
+#     add_initial_roles(db)
+#     init_admin(db)
+
+
 def init_db():
-  Base.metadata.create_all(bind=engine)
+  # Check if the enum type exists before creating it
+  existing_enum_query = text("""
+      SELECT EXISTS (
+          SELECT 1
+          FROM pg_type
+          WHERE typname = 'assignmenttype'
+      )
+  """)
+  
   with SessionLocal() as db:
-    add_initial_roles(db)
-    init_admin(db)
+    # Checking for existing enum type
+    if not db.execute(existing_enum_query).scalar():
+      Base.metadata.create_all(bind=engine)
+
+    try:
+      add_initial_roles(db)
+      init_admin(db)
+    except IntegrityError as e:
+      db.rollback()
+      print(f"Integrity error occurred: {e.orig}")  # Log the error or handle it as needed
 
 def get_db() -> Generator:
   db = SessionLocal()

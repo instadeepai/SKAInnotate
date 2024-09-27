@@ -136,7 +136,7 @@ async def setup_cloud_run(deployData: schema.DeployAppData):
     if not frontend_url or not backend_url:
       raise RuntimeError("Could not retrieve Cloud Run URLs")
     
-    envs_backend.update({"ORIGIN": frontend_url})
+    envs_backend.update({"CORS_ORIGIN": frontend_url})
     envs_frontend.update({"REACT_APP_BASE_API_URL": backend_url})
 
     logger.info("Redeploying frontend service with updated environment variables")

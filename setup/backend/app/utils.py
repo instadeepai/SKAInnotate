@@ -8,8 +8,7 @@ from google.oauth2 import service_account
 from google.auth import default
 from google.auth.transport.requests import Request
 
-# service_account_file = os.getenv("SERVICE_ACCOUNT_FILE")
-# credentials = None
+
 def get_credentials(service_account_file):
   if service_account_file:
     credentials = service_account.Credentials.from_service_account_file(service_account_file)
@@ -17,13 +16,11 @@ def get_credentials(service_account_file):
     raise RuntimeError("Service account file not set in environment variables.")
   return credentials
 
-# def get_storage_client():
-#   return storage.Client(credentials=get_credentials())
-
 def get_sqladmin_client(service_account_file):
   return build('sqladmin', 'v1beta4', credentials=get_credentials(service_account_file))
 
 def get_cloud_run_url(service_name, project_id, region):
+  
   try:
     result = subprocess.run(
       [
