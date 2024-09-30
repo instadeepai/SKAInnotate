@@ -20,7 +20,6 @@ The setup can also be run locally at http://127.0.0.1 or http://localhost.
    - [Cloud Run Deployment](#cloud-run-deployment)
 2. [Web Hosted Application for Data Annotation](#web-hosted-application-for-data-annotation)
    - [Application Overview](#application-overview)
-   - [Installation](#installation)
    - [Usage](#usage)
 
 ---
