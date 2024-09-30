@@ -52,7 +52,7 @@ This section guides you through setting up the Google Cloud infrastructure neces
     uvicorn setup.backend.app.main:app --reload --port <PORT>
     ```
 4. **Install Google Cloud SDK**: \
-   Ensure you have Google Cloud SDK installed and authenticate.
+   Ensure you have [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) installed and authenticate.
    ```sh
    gcloud auth login
    gcloud config set project YOUR_PROJECT_ID
