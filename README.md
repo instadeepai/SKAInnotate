@@ -22,8 +22,6 @@ The setup can also be run locally at http://127.0.0.1 or http://localhost.
    - [Application Overview](#application-overview)
    - [Installation](#installation)
    - [Usage](#usage)
-3. [Contributing](#contributing)
-4. [License](#license)
 
 ---
 
@@ -54,7 +52,12 @@ This section guides you through setting up the Google Cloud infrastructure neces
     ```sh
     uvicorn setup.backend.app.main:app --reload --port <PORT>
     ```
-
+4. **Install Google Cloud SDK**
+   Ensure you have Google Cloud SDK installed and authenticate.
+   ```sh
+   gcloud auth login
+   gcloud config set project YOUR_PROJECT_ID
+   ```
 ### Database Setup
 
 1. **Cloud SQL Configuration**:  
