@@ -16,7 +16,7 @@ You can create a Cloud SQL instance using the Google Cloud Console or via the co
 ### Using Google Cloud Console
 #### Create Instance
 1. In the Google Cloud Console, navigate to **SQL**.
-2. Click on **Create Instance**. You might have to enable Compute Engine API if not already enabled.
+2. Click on **Create Instance**. You might have to enable Compute Engine API and Cloud SQL Admin API if not already enabled.
 3. Select **PostgreSQL**.
 4. Enter the instance ID, password for the default `postgres` user, and configure other settings (region, machine type, etc.).
 5. Click **Create**.
