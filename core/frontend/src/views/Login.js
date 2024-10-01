@@ -14,10 +14,9 @@ const Login = () => {
 
   const responseMessage = async (response) => {
     try {
-      console.log("Authentication step: Response credentials: ", response.credential);
-      const backendResponse = await verifyTokenCallback({ token: response.credential });
-      if (backendResponse.status === 200) {
-        let user_info = backendResponse.data;
+      const verificationResponse = await verifyTokenCallback({ token: response.credential });
+      if (verificationResponse.status === 200) {
+        let user_info = verificationResponse.data;
         setUser(user_info);
         console.log("Authentication Successful: Redirecting to projects Page");
         

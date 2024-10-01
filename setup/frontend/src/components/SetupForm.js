@@ -8,6 +8,7 @@ const SetupForm = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Reusable input field component
   const InputField = ({ label, id, type = 'text', required = true, placeholder = '' }) => (
@@ -128,14 +129,26 @@ try {
         </Button>
       </Form>
 
-      {message && (
+      {/* Modal for displaying messages */}
+      <Modal open={modalOpen} onClose={handleClose} size='small'>
+        <Modal.Header>Message</Modal.Header>
+        <Modal.Content>
+          <p>{message}</p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button color='blue' onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Actions>
+      </Modal>
+      {/* {message && (
         <Message
           success={success}
           error={!success}
           content={message}
           style={{ marginTop: '20px' }}
         />
-      )}
+      )} */}
     </Segment>
   );
 };

@@ -55,6 +55,12 @@ async def auth_callback(token: dict, db: Session = Depends(get_db)):
       "user_info": user_info
   })
 
+@router.get("/client-id")
+async def get_client_id():
+  return {
+    "clientId": os.getenv("GOOGLE_CLIENT_ID")
+  }
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
   return JSONResponse(
