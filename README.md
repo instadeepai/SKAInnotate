@@ -71,7 +71,7 @@ This section guides you through setting up the Google Cloud infrastructure neces
 
 Set up a Google Cloud OAuth 2.0 authentication for the application and provide Client ID in setup form. Detailed instructions on [Authentication setup](setup/docs/setup_authentication.md)
 
-### Container Image Setup
+<!--### Container Image Setup -->
 
 <!-- 1. **Build and Push Container Image**:  
    Choose your build option (`local`, `cloud`, or `none`). The container image will either be built locally or using `gcloud builds submit` and pushed to Google Artifact Registry. -->
