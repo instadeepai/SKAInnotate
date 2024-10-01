@@ -30,28 +30,31 @@ This section guides you through setting up the Google Cloud infrastructure neces
 
 ### Project Setup
 
-1. **Create a Virtual Environment**:  
-   Create a virtual environment and install required libraries:
-
-    ```sh
-    pip install -r requirements.txt
-    ```
-
-2. **Clone the Repository**:  
+1. **Clone the Repository**:  
    Clone the SKAInnotate repository:
 
     ```sh
     git clone https://github.com/instadeepai/SKAInnotate.git
     cd SKAInnotate
     ```
-
-3. **Run the Setup Server**:  
-   Start the FastAPI server to initiate the project setup:
+2. **Create a Virtual Environment**:  
+   Create a virtual environment and install required libraries:
 
     ```sh
-    uvicorn setup.backend.app.main:app --reload --port <PORT>
+    pip install -r requirements.txt
     ```
-4. **Install Google Cloud SDK**: \
+3. **Run the Setup Server**:  
+   Run a full setup to build and open backend server:
+
+    ```sh
+    bash setup.sh <PORT> <OS> (OS defaults to linux)
+    eg. bash setup.sh 8000 macos
+    ```
+   Subsequent runs that only requires opening the backend server, you could run:
+   ```
+   uvicorn setup.backend.app.main:app --reload --port <PORT>
+   ```
+5. **Install Google Cloud SDK**: \
    Ensure you have [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) installed and authenticate.
    ```sh
    gcloud auth login
