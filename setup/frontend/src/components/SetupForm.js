@@ -128,27 +128,15 @@ try {
           <Icon name="check circle" /> Launch
         </Button>
       </Form>
-
-      {/* Modal for displaying messages */}
-      <Modal open={modalOpen} onClose={handleClose} size='small'>
-        <Modal.Header>Message</Modal.Header>
-        <Modal.Content>
-          <p>{message}</p>
-        </Modal.Content>
-        <Modal.Actions>
-          <Button color='blue' onClick={handleClose}>
-            Close
-          </Button>
-        </Modal.Actions>
-      </Modal>
-      {/* {message && (
+      
+      {message && (
         <Message
           success={success}
           error={!success}
           content={message}
           style={{ marginTop: '20px' }}
         />
-      )} */}
+      )}
     </Segment>
   );
 };
