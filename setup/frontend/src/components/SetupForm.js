@@ -8,6 +8,7 @@ const SetupForm = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Reusable input field component
   const InputField = ({ label, id, type = 'text', required = true, placeholder = '' }) => (
@@ -127,7 +128,7 @@ try {
           <Icon name="check circle" /> Launch
         </Button>
       </Form>
-
+      
       {message && (
         <Message
           success={success}

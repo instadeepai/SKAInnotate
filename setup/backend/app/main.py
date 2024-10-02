@@ -91,8 +91,7 @@ async def setup_cloud_sql(sqlInstanceData: schema.SQLInstance):
 async def setup_cloud_run(deployData: schema.DeployAppData):
   instance_connection_name = f"{deployData.project_id}:{deployData.region}:{deployData.instance_name}"
   cfg = configs.get_configs()
-  container_image_backend = cfg['CONTAINER_IMAGE_BACKEND']
-  container_image_frontend = cfg['CONTAINER_IMAGE_FRONTEND']
+  container_image = cfg['CONTAINER_IMAGE']
 
   envs_backend =  {"PROJECT_ID": deployData.project_id,
                   "REGION": deployData.region,
@@ -105,60 +104,20 @@ async def setup_cloud_run(deployData: schema.DeployAppData):
                   "GOOGLE_CLIENT_ID": deployData.clientId
                   }
   
-  envs_frontend = {"REACT_APP_GOOGLE_CLIENT_ID": deployData.clientId}
   try:
-    logger.info("Deploying frontend service")
-    envs_frontend_str=",".join([f'{i}={v}' for i, v in envs_frontend.items()])
+    logger.info("Deploying service")
+    envs_vars_str=",".join([f'{i}={v}' for i, v in envs_backend.items()])
     utils.run_deploy(service_name=f'{deployData.service_name}',
                  project_id=deployData.project_id,
-                 container_image=container_image_frontend,
+                 container_image=container_image,
                  instance_connection_name=instance_connection_name,
                  region=deployData.region,
-                 env_vars=envs_frontend_str)
+                 env_vars=envs_vars_str)
 
-    logger.info("Deploying backend service")
-    envs_backend_str=",".join([f'{i}={v}' for i, v in envs_backend.items()])
-    utils.run_deploy(service_name=f'{deployData.service_name}-backend',
-                 project_id=deployData.project_id,
-                 container_image=container_image_backend,
-                 instance_connection_name=instance_connection_name,
-                 region=deployData.region,
-                 env_vars=envs_backend_str)
-
-    logger.info("Fetching Cloud Run URLs")
-    frontend_url = utils.get_cloud_run_url(service_name=f'{deployData.service_name}',
-                                           project_id=deployData.project_id,
-                                          region=deployData.region)
-    backend_url = utils.get_cloud_run_url(service_name=f'{deployData.service_name}-backend',
+    logger.info("Fetching Cloud Run service URL")
+    service_url = utils.get_cloud_run_url(service_name=f'{deployData.service_name}',
                                           project_id=deployData.project_id,
                                           region=deployData.region)
-
-    if not frontend_url or not backend_url:
-      raise RuntimeError("Could not retrieve Cloud Run URLs")
-    
-    envs_backend.update({"CORS_ORIGIN": frontend_url})
-    envs_frontend.update({"REACT_APP_BASE_API_URL": backend_url})
-
-    logger.info("Redeploying frontend service with updated environment variables")
-    envs_frontend_str=",".join([f'{i}={v}' for i, v in envs_frontend.items()])
-    utils.run_deploy(service_name=f'{deployData.service_name}',
-                 project_id=deployData.project_id,
-                 container_image=container_image_frontend,
-                 instance_connection_name=instance_connection_name,
-                 region=deployData.region,
-                 env_vars=envs_frontend_str)
-    
-    logger.info("Redeploying backend service with updated environment variables")
-    envs_backend_str=",".join([f'{i}={v}' for i, v in envs_backend.items()])
-    utils.run_deploy(service_name=f'{deployData.service_name}-backend',
-                 project_id=deployData.project_id,
-                 container_image=container_image_backend,
-                 instance_connection_name=instance_connection_name,
-                 region=deployData.region,
-                 env_vars=envs_backend_str)
-    
-    service_url = frontend_url
-
     return {"message": "Deployment successful", "service_url": service_url}
   except Exception as e:
     return {"error": str(e)}

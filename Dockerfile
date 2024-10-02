@@ -10,14 +10,17 @@ COPY requirements.txt /app/requirements.txt
 # Install the dependencies
 RUN pip install -v --no-cache-dir -r /app/requirements.txt
 
-# Copy the rest of the application files
+# Copy the backend application files
 COPY core/backend /app/core/backend
+
+# Copy the frontend build files
+COPY core/frontend/build /app/core/frontend/build  
 
 # Add a non-root user and switch to it
 RUN adduser --disabled-password --gecos '' appuser && chown -R appuser /app
 USER appuser
 
-# environment variables
+# Environment variables
 ENV PYTHONPATH=/app:/app/core/backend
 ENV PATH=/root/.local/bin:$PATH
 ENV HOST=0.0.0.0

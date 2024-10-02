@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import axios from 'axios';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { UserProvider } from './UserContext';
 import { FooterProvider } from './context/FooterContext';
@@ -16,9 +15,7 @@ import Footer from './components/Footer';
 
 import 'semantic-ui-css/semantic.min.css';
 import './assets/styles/App.css';
-import { init } from './services/api';
-
-const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+import { init, fetchClientId } from './services/api';
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -40,11 +37,23 @@ const AppRoutes = () => {
 };
 
 function App() {
+  const [clientId, setClientId] = useState('');
+
   useEffect(() => {
-    init()
-      .catch(error => {
-        console.error('There was an error fetching data:', error);
-      });
+    const getClientId = async () => {
+      try {
+        const response = await fetchClientId();
+        setClientId(response.data.clientId);
+      } catch (error) {
+        console.error('There was an error fetching the client ID:', error);
+      }
+    };
+
+    getClientId();
+
+    init().catch(error => {
+      console.error('There was an error fetching data:', error);
+    });
   }, []);
 
   return (
@@ -59,5 +68,4 @@ function App() {
     </GoogleOAuthProvider>
   );
 }
-
 export default App;

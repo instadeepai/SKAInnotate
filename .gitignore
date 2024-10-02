@@ -9,6 +9,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+node_modules/
 develop-eggs/
 dist/
 downloads/
@@ -25,6 +26,10 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# dependencies
+/.pnp
+.pnp.js
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -50,6 +55,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+/coverage
 
 # Translations
 *.mo
@@ -164,3 +170,14 @@ configs.yaml
 *.db
 cloudbuild.yaml
 *.yaml
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

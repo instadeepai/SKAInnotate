@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -13,4 +14,8 @@ def on_startup():
 
 @router.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-  return #FileResponse("core/frontend/build/index.html")
+  return FileResponse("core/frontend/build/index.html")
+
+@router.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+  return FileResponse("core/frontend/build/index.html")
