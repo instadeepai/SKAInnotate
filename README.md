@@ -2,124 +2,102 @@
 
 ## Overview
 
-SKAInnotate consists of two primary components:
+**SKAInnotate** is a versatile platform designed to streamline data annotation tasks. It comprises two main components:
 
-1. **Google Cloud Infrastructure Setup**: This includes setting up the project, database, authentication, container image, and Cloud Run deployment.
+1. **Google Cloud Infrastructure Setup**:  
+   This comprises setup of essential Google Cloud services, including project configuration, database setup, authentication and Cloud Run deployment.
 
-The setup can also be run locally at http://127.0.0.1 or http://localhost.
-   
-2. **Web Hosted Application for Data Annotation**: A user-friendly web application designed for data annotation tasks with roles for annotators, reviewers, and admins.
+2. **Web Application for Data Annotation**:  
+   A user-friendly, web-based platform tailored for data annotation with role-based access for annotators, reviewers, and admins.
 
-## Table of Contents
-
-1. [Google Cloud Infrastructure Setup](#google-cloud-infrastructure-setup)
-   - [Project Setup](#project-setup)
-   - [Database Setup](#database-setup)
-   - [Google Authentication Setup](#google-authentication-setup)
-   - [Container Image Setup](#container-image-setup)
-   - [Cloud Run Deployment](#cloud-run-deployment)
-2. [Web Hosted Application for Data Annotation](#web-hosted-application-for-data-annotation)
-   - [Application Overview](#application-overview)
-   - [Usage](#usage)
+The application can be run both locally (e.g., `http://127.0.0.1` or `http://localhost`) and hosted on Google Cloud.
 
 ---
 
 ## Google Cloud Infrastructure Setup
 
-This section guides you through setting up the Google Cloud infrastructure necessary for the data annotation web application.
+This section provides step-by-step instructions to set up the Google Cloud infrastructure required to run the SKAInnotate web application.
 
 ### Project Setup
 
-1. **Clone the Repository**:  
-   Clone the SKAInnotate repository:
+1. **Install Google Cloud SDK**:  
+   Make sure you have the [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) installed, and authenticate with your Google account.
 
-    ```sh
-    git clone https://github.com/instadeepai/SKAInnotate.git
-    cd SKAInnotate
-    ```
-2. **Create a Virtual Environment**:  
-   Create a virtual environment and install required libraries:
-
-    ```sh
-    pip install -r requirements.txt
-    ```
-3. **Run the Setup Server**:  
-   Run a full setup to build and open backend server:
-
-    ```sh
-    bash setup.sh <PORT> <OS> (OS defaults to linux)
-    eg. bash setup.sh 8000 macos
-    ```
-   Subsequent runs that only requires opening the backend server, you could run:
-   ```
-   uvicorn setup.backend.app.main:app --reload --port <PORT>
-   ```
-5. **Install Google Cloud SDK**: \
-   Ensure you have [Google Cloud SDK](https://cloud.google.com/sdk/docs/install) installed and authenticate.
    ```sh
-   gcloud auth login
-   gcloud config set project YOUR_PROJECT_ID
+      gcloud auth login
+      gcloud config set project YOUR_PROJECT_ID
    ```
-### Database Setup
+2. **Set Up Google Cloud SQL and OAuth**:
+   Create a Google Cloud SQL instance and configure OAuth for authentication. Refer to the following guides for detailed instructions:
 
-1. **Cloud SQL Configuration**:  
-   Set up the Cloud SQL instance and provide necessary details like instance name, region, database name, user, and password.
+   * [Cloud SQL Setup](/setup/docs/)
+   * [OAuth Setup](/setup/docs/)
+3. Clone the Repository:
+   Clone the SKAInnotate repository and navigate to the project directory:
+   
+   ```sh
+      git clone https://github.com/instadeepai/SKAInnotate.git
+      cd SKAInnotate
+   ```
+4. Create a Virtual Environment and Install Dependencies:
+   Set up a Python virtual environment and install the required libraries:
 
-   If you need to create a new Google Cloud SQL Instance, refer to the [Cloud SQL guide](setup/docs/setup_sql.md)
+   ```sh
+      python3 -m venv env
+      source env/bin/activate
+      pip install -r requirements.txt
+   ```
 
-### Google Authentication Setup
+5. Run the Setup Script:
+   Execute the setup script to build the backend server:
 
-Set up a Google Cloud OAuth 2.0 authentication for the application and provide Client ID in setup form. Detailed instructions on [Authentication setup](setup/docs/setup_authentication.md)
+```sh
+bash setup.sh <PORT> <OS>   # <OS> defaults to linux, e.g., bash setup.sh 8000 macos
+```
+To start the backend server in future sessions, you can run:
 
-<!--### Container Image Setup -->
+```sh
+uvicorn setup.backend.app.main:app --reload --port <PORT>
+```
 
-<!-- 1. **Build and Push Container Image**:  
-   Choose your build option (`local`, `cloud`, or `none`). The container image will either be built locally or using `gcloud builds submit` and pushed to Google Artifact Registry. -->
+6. Launch Application Deployment:
+   Provide necessary project details (Google Cloud SQL, OAuth credentials, etc.) and click the Launch button to deploy the application.
 
-### Cloud Run Deployment
+   After deployment, update the Authorized JavaScript Origins in your OAuth 2.0 settings with the URL provided by the setup form. Then, open the deployment URL in your browser to begin using SKAInnotate.
 
-1. **Deploy to Cloud Run**:  
-   Deploy the containerized application to Cloud Run by providing a service name. The deployment URL can be found in the Cloud Run console.
-
-2. **Update OAuth 2.0 Credentials**:  
-   After deployment, update the **Authorized JavaScript Origins** in your OAuth 2.0 settings with the frontend deployment URL.
-
----
-
-## Web Hosted Application for Data Annotation
-
+## Web Application for Data Annotation
 ### Application Overview
-
-The SKAInnotate web application facilitates data annotation tasks. It includes roles for **admins**, **annotators**, and **reviewers**, each with specific functionalities.
-
-### Usage
-
-1. **Access the Application**:  
-   Open a web browser and navigate to the deployed Cloud Run URL:
-
+   The SKAInnotate web application enables seamless data annotation by providing a role-based system with the following roles:
+   
+   **Admins:** Manage projects, tasks, and users.
+   **Annotators:** Perform data annotations.
+   **Reviewers:** Review and validate annotations submitted by annotators.
+   
+### Roles and Functionalities
+   **Admins:**
+   * Create and manage annotation projects.
+   * Configure project settings.
+   * Add or remove users.
+   * Upload and assign annotation tasks.
+   * Retrieve completed annotations.
+     
+   **Annotators:**
+   * Receive and complete annotation tasks.
+   * Submit annotations to the system.
+     
+   **Reviewers:**
+   * Review the annotations submitted by annotators.
+   * Approve or modify annotations as needed.
+   
+   ### Usage
+   1. Access the Application:
+   Once the application is deployed, open the following URL in a web browser to access SKAInnotate:
+   
    ```plaintext
    https://<service-name>-<hashing>-<region>.a.run.app
    ```
-
-### Roles and Functionalities
-
-- **Admins**:  
-  Can create projects, configure settings, add/remove users, upload and assign tasks, and retrieve annotations.
-
-- **Annotators**:  
-  Receive tasks, annotate data, and submit annotations.
-
-- **Reviewers**:  
-  Review submitted annotations and provide final annotation.
-
----
-
-## Sample Deployment
-
-You can explore a sample deployment at:
-
-```plaintext
-https://skainnotate-demo-kse2o5g36a-uc.a.run.app
-```
-
-> Note: You must be assigned an appropriate role (admin, annotator, or reviewer) to access relevant functionalities.
+   2. Login and Select Role:
+   Use Google Authentication to log in and select your role (admin, annotator, or reviewer) based on your permissions.
+   
+   3. Start Annotating:
+   Once logged in, admins can manage projects and tasks, while annotators and reviewers can begin working on assigned tasks.
