@@ -10,8 +10,6 @@
 2. **Web Application for Data Annotation**:  
    A user-friendly, web-based platform tailored for data annotation with role-based access for annotators, reviewers, and admins.
 
-The application can be run both locally (e.g., `http://127.0.0.1` or `http://localhost`) and hosted on Google Cloud.
-
 ---
 
 ## Google Cloud Infrastructure Setup
@@ -49,7 +47,7 @@ This section provides step-by-step instructions to set up the Google Cloud infra
    ```
 
 5. Run the Setup Script:
-   Execute the setup script to build the backend server:
+   Execute the setup script to build the server:
 
 ```sh
 bash setup.sh <PORT> <OS>   # <OS> defaults to linux, e.g., bash setup.sh 8000 macos
@@ -59,6 +57,7 @@ To start the backend server in future sessions, you can run:
 ```sh
 uvicorn setup.backend.app.main:app --reload --port <PORT>
 ```
+The setup can run locally (e.g., `http://127.0.0.1` or `http://localhost`) and hosted on Google Cloud.
 
 6. Launch Application Deployment:
    Provide necessary project details (Google Cloud SQL, OAuth credentials, etc.) and click the Launch button to deploy the application.
