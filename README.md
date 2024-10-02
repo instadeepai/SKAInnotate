@@ -28,7 +28,7 @@ This section provides step-by-step instructions to set up the Google Cloud infra
 2. **Set Up Google Cloud SQL and OAuth**:
    Create a Google Cloud SQL instance and configure OAuth for authentication. Refer to the following guides for detailed instructions:
 
-   * [Cloud SQL Setup](/setup/docs/)
+   * [Cloud SQL Setup](/setup/docs/setup_sql.md)
    * [OAuth Setup](/setup/docs/)
 3. **Clone the Repository:**
    Clone the SKAInnotate repository and navigate to the project directory:
