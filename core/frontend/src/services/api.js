@@ -62,7 +62,7 @@ export const updateReview = (reviewId, updatedReview) => putRequest(`/api/review
 // Authentication
 export const verifyTokenCallback = (token) => postRequest(`/api/auth/callback`, token);
 export const fetchClientId = () => getRequest(`/api/auth/client-id`);
-export const fetchBaseApiUrl = () => getRequest(`/api-url`);
+export const fetchBaseUrl = () => getRequest(`/api/api-url`);
 
 // Annotations Export
 export const exportAnnotations = (projectId, format) => 

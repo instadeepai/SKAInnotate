@@ -16,12 +16,12 @@ import Footer from './components/Footer';
 
 import 'semantic-ui-css/semantic.min.css';
 import './assets/styles/App.css';
-import { init, fetchClientId } from './services/api';
+import { init, fetchClientId, fetchBaseUrl } from './services/api';
 
 // Function to fetch the base API URL
 const fetchBaseApiUrl = async () => {
   try {
-    const response = await axios.get('/api-url'); // Adjust the endpoint based on your FastAPI setup
+    const response = await fetchBaseUrl(); // Adjust the endpoint based on your FastAPI setup
     return response.data.apiUrl;
   } catch (error) {
     console.error('Error fetching base API URL:', error);
@@ -55,7 +55,7 @@ function App() {
   useEffect(() => {
     const getClientId = async () => {
       try {
-        const response = await fetchClientId(); // Fetch the client ID from the backend
+        const response = await fetchClientId();
         setClientId(response.data.clientId);
       } catch (error) {
         console.error('There was an error fetching the client ID:', error);
@@ -64,8 +64,8 @@ function App() {
 
     const loadBaseApiUrl = async () => {
       try {
-        const apiUrlResponse = await fetchBaseApiUrl(); // Fetch the base API URL
-        setBaseApiUrl(apiUrlResponse.data.apiUrl); // Store it in state
+        const apiUrlResponse = await fetchBaseApiUrl();
+        setBaseApiUrl(apiUrlResponse.data.apiUrl);
       } catch (error) {
         console.error('Failed to load base API URL:', error);
       }
