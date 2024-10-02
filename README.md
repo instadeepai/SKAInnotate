@@ -30,14 +30,14 @@ This section provides step-by-step instructions to set up the Google Cloud infra
 
    * [Cloud SQL Setup](/setup/docs/)
    * [OAuth Setup](/setup/docs/)
-3. Clone the Repository:
+3. **Clone the Repository:**
    Clone the SKAInnotate repository and navigate to the project directory:
    
    ```sh
       git clone https://github.com/instadeepai/SKAInnotate.git
       cd SKAInnotate
    ```
-4. Create a Virtual Environment and Install Dependencies:
+4. **Create a Virtual Environment and Install Dependencies:**
    Set up a Python virtual environment and install the required libraries:
 
    ```sh
@@ -46,7 +46,7 @@ This section provides step-by-step instructions to set up the Google Cloud infra
       pip install -r requirements.txt
    ```
 
-5. Run the Setup Script:
+5. **Run the Setup Script:**
    Execute the setup script to build the server:
 
    ```sh
@@ -59,7 +59,7 @@ This section provides step-by-step instructions to set up the Google Cloud infra
    ```
    The setup can run locally (e.g., `http://127.0.0.1` or `http://localhost`) and hosted on Google Cloud.
 
-6. Launch Application Deployment:
+6. **Launch Application Deployment:**
    Provide necessary project details (Google Cloud SQL, OAuth credentials, etc.) and click the Launch button to deploy the application.
 
    After deployment, update the Authorized JavaScript Origins in your OAuth 2.0 settings with the URL provided by the setup form. Then, open the deployment URL in your browser to begin using SKAInnotate.
