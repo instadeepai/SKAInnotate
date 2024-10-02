@@ -55,7 +55,7 @@ This section provides step-by-step instructions to set up the Google Cloud infra
    To start the backend server in future sessions, you can run:
    
    ```sh
-   uvicorn setup.backend.app.main:app --reload --port <PORT>
+   gunicorn setup.backend.app.main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
    ```
    The setup can run locally (e.g., `http://127.0.0.1` or `http://localhost`) and hosted on Google Cloud.
 
