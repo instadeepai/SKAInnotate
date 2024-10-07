@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from enum import Enum
+from datetime import datetime
 
 # SQL instance
 class SQLInstance(BaseModel):
@@ -26,3 +27,20 @@ class DeployAppData(BaseModel):
   clientId: str
   superuser_email: EmailStr
   superuser_username: str
+
+class DeploymentCreate(BaseModel):
+  project_id: str
+  instance_name: str
+  deployment_status: str
+  service_name: str = None
+  service_url: str = None
+
+class DeploymentResponse(BaseModel):
+  id: int
+  project_id: str
+  instance_name: str
+  deployment_status: str
+  service_name: str = None
+  service_url: str = None
+  deployed_at: datetime
+  # active: bool

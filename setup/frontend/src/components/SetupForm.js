@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import '../SetupForm.css';
-import { setProject, createSQLInstance, deployApp } from '../services/api';
-import { Segment, Button, Form, Message, Header, Divider, Grid, Icon } from 'semantic-ui-react';
+import alertify from 'alertifyjs';
+import { setProject, createSQLInstance, deployApp, addDeployment } from '../services/api';
+import { Segment, Button, Form, Header, Divider, Grid, Icon } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 
 const SetupForm = () => {
-  const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
 
-  // Reusable input field component
   const InputField = ({ label, id, type = 'text', required = true, placeholder = '' }) => (
     <Form.Field required={required}>
       <label>{label}</label>
@@ -18,18 +16,34 @@ const SetupForm = () => {
     </Form.Field>
   );
 
-  // Form submission handler
+  const validateForm = (formValues) => {
+    for (const key in formValues) {
+      if (!formValues[key]) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const setupInfrastructure = async (event) => {
     event.preventDefault();
     setLoading(true);
     setSuccess(false);
-    setMessage(''); 
 
     const formData = new FormData(event.target);
     const formValues = Object.fromEntries(formData.entries());
 
+    if (!validateForm(formValues)) {
+      alertify.error('Please fill out all required fields.');
+      setLoading(false);
+      return;
+    }
+
+    let service_url = '';
+    let deployment_status = '';
+
 try {
-  setMessage('Application launch in progress...');
+  alertify.success('Application launch in progress...');
 
   const deployResponse = await deployApp({
     project_id: formValues.project_id,
@@ -44,26 +58,39 @@ try {
     superuser_username: formValues.superuser_username,
   });
 
-  // Check if 'service_name' is provided in the response
   if (deployResponse && deployResponse.service_url) {
-    const service_url = deployResponse.service_url;
-    setMessage(`App launched successfully at ${service_url}!`);
+    service_url = deployResponse.service_url;
+    deployment_status = 'Success';
+    alertify.success(`App launched successfully at ${service_url}!`);
     setSuccess(true);
   } else {
-    setMessage("Application unable to launch");
+    deployment_status = 'Failed';
   }
+} catch (error) {
+  alertify.success(`Error launching application: ${error.message}`);
+
+  deployment_status = 'Failed';
+} finally {
+  try {
+    await addDeployment({
+      project_id: formValues.project_id,
+      instance_name: formValues.instance_name,
+      service_name: formValues.service_name,
+      service_url: service_url,
+      deployment_status: deployment_status,
+    });
   } catch (error) {
-  setMessage(`Error launching application: ${error.message}`);
-  } finally {
-  setLoading(false);
+    console.error('Error adding deployment:', error);
   }
+  setLoading(false);
 }
+  }
 
 
   return (
-    <Segment padded="very" className="setup-segment">
+    <Segment className="setup-segment">
       <Header as="h2" textAlign="center">
-        <Icon name="rocket" />
+
           Let's Launch Your SKAInnotate Journey!
       </Header>
 
@@ -129,14 +156,6 @@ try {
         </Button>
       </Form>
       
-      {message && (
-        <Message
-          success={success}
-          error={!success}
-          content={message}
-          style={{ marginTop: '20px' }}
-        />
-      )}
     </Segment>
   );
 };

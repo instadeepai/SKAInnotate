@@ -1,0 +1,72 @@
+/* Ensure the container takes full size of the available space */
+.past-deployments-container {
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.past-deployments-content {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.deployment-item {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.deployment-item:hover {
+    transform: scale(1.02);
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.deployment-item p strong {
+    color: #333;
+}
+
+.deployment-divider {
+    border-top: 1px solid #dcdcdc;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.deployment-status {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.deployment-status.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.deployment-status.failed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Container for the deployment item */
+.deployment-item {
+    position: relative;
+    /* Make the container relative for absolute positioning of the button */
+    padding: 20px;
+    background-color: #f4f7fa;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Position the delete button in the top right */
+.delete-button-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}

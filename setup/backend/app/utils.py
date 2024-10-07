@@ -68,6 +68,20 @@ def run_deploy(service_name,
     print(f"Error occurred: {e.stderr}")
     return e.returncode
 
+def delete_service(service_name, project_id):
+  try:
+    result = subprocess.run(
+        ['gcloud', 'run', 'services', 'delete', service_name, '--project', project_id, '--quiet'],
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    print(result.stdout)  # Print the output from the command
+    return f"Service '{service_name}' deleted successfully."
+  except subprocess.CalledProcessError as e:
+    print(e.stderr)  # Print any error message
+    return f"Failed to delete service '{service_name}': {e.stderr}"
+
 def create_cloudsql_instance(service_account_file, project_id, instance_name, region, database_name, db_user, db_pass):
   instance_body = {
       'name': instance_name,
