@@ -1,8 +1,6 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from fastapi.responses import StreamingResponse
-from io import StringIO, BytesIO
 import xml.etree.ElementTree as ET
 
 import core.backend.app.crud as crud

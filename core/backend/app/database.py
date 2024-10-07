@@ -6,7 +6,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
-
 from google.cloud.sql.connector import Connector
 from dotenv import load_dotenv
 

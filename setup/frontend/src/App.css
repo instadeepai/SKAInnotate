@@ -1,15 +1,20 @@
 
 .App {
   font-family: 'Arial', sans-serif;
-  display: grid;
-  justify-content: center;
-  align-items: center;
   padding: 20px;
-  height: 100vh;
   background-color: #c7e1fd;
   box-sizing: border-box;
 }
 
+.App h1{
+  color: black;
+  text-align: center;
+}
+
+.tab-container {
+  padding-left: 30%;
+  padding-right: 30%;
+}
 
 form {
   justify-content: space-between;
@@ -25,7 +30,7 @@ form {
 
 .form-section {
   width: 100px;
-  background-color: #2185d0;;
+  background-color: #2185d0;
   margin-bottom: 20px;
   box-sizing: border-box;
 }
