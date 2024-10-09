@@ -34,7 +34,7 @@ const handleDelete = (deployment) => {
       try {
         await deleteDeployment(deployment.id);
         setDeployments(deployments.filter(d => d.id !== deployment.id));
-        alertify.success(`Deployment "${deployment.project_id}" deleted successfully`);
+        alertify.success(`Deployment "${deployment.service_name}" deleted successfully`);
       } catch (error) {
         console.error(`Error deleting deployment ${deployment.id}:`, error);
         alertify.error('Error deleting the deployment');
@@ -68,7 +68,7 @@ const handleDelete = (deployment) => {
                   color="red"
                   icon
                   size="small"
-                  aria-label={`Delete deployment ${deployment.project_id}`} // Improved accessibility
+                  aria-label={`Delete deployment ${deployment.service_name}`}
                   onClick={() => handleDelete(deployment)}
                 >
                   <Icon name="trash" />
