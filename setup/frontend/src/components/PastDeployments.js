@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Segment, Header, Divider, Button, Icon } from 'semantic-ui-react';
 import { deleteDeployment, getDeployments } from '../services/api';
-import { alertify } from 'alertifyjs';
+import alertify from 'alertifyjs';
 import 'alertifyjs/build/css/alertify.min.css';  // Import the CSS for Alertify
 
 import '../PastDeployments.css';
@@ -26,9 +26,10 @@ const PastDeployments = () => {
 
 const handleDelete = (deployment) => {
   // Show confirmation dialog before deleting
+
   alertify.confirm(
     'Remove Deployment', 
-    `Are you sure you want to delete the deployment "${deployment.project_id}"?`, 
+    `Are you sure you want to remove the deployment "${deployment.service_name}"?`, 
     async function() {
       try {
         await deleteDeployment(deployment.id);
