@@ -28,8 +28,8 @@ This section provides step-by-step instructions to set up the Google Cloud infra
 2. **Set Up Google Cloud SQL and OAuth**:
    Create a Google Cloud SQL instance and configure OAuth for authentication. Refer to the following guides for detailed instructions:
 
-   * [Cloud SQL Setup](/setup/docs/setup_sql.md)
-   * [OAuth Setup](/setup/docs/setup_authentication.md)
+   * [Cloud SQL Setup](/deployment_setup/docs/setup_sql.md)
+   * [OAuth Setup](/deployment_setup/docs/setup_authentication.md)
 3. **Clone the Repository:**
    Clone the SKAInnotate repository and navigate to the project directory:
    
@@ -55,7 +55,7 @@ This section provides step-by-step instructions to set up the Google Cloud infra
    To start the backend server in future sessions, you can run:
    
    ```sh
-   gunicorn setup.backend.app.main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:<PORT>
+   gunicorn deployment_setup.backend.app.main:app --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:<PORT>
    ```
    The setup can run locally (e.g., `http://127.0.0.1` or `http://localhost`) and hosted on Google Cloud.
 

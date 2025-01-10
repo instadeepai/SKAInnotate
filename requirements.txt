@@ -12,7 +12,6 @@ cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
 cloud-sql-python-connector==1.10.0
-cryptography==42.0.8
 decorator==5.1.1
 dnspython==2.6.1
 email_validator==2.1.1
@@ -47,7 +46,7 @@ mdurl==0.1.2
 multidict==6.0.5
 numpy==1.26.4
 oauthlib==3.2.2
-orjson==3.10.4
+# orjson==3.10.4
 pandas==2.2.2
 pg8000==1.31.2
 proto-plus==1.23.0

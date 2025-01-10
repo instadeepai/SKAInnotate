@@ -47,7 +47,7 @@ def run_deploy(service_name,
     env_vars_str = str(env_vars)
 
     result = subprocess.run(
-        ["bash", "setup/deploy.sh", 
+        ["bash", "deployment_setup/deploy.sh", 
           f"{service_name}", 
           f"{project_id}",
           f"{container_image}", 

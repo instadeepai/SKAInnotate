@@ -4,9 +4,9 @@ from fastapi.responses import JSONResponse
 from google.oauth2 import service_account
 from google.api_core.exceptions import NotFound
 
-import setup.backend.app.utils as utils
-import setup.backend.app.configs as configs
-import setup.backend.app.schema as schema
+import deployment_setup.backend.app.utils as utils
+import deployment_setup.backend.app.configs as configs
+import deployment_setup.backend.app.schema as schema
 import logging
 
 logging.basicConfig(level=logging.INFO)
