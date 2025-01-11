@@ -33,6 +33,7 @@ echo "Running the Docker container..."
 docker run -d -p $PORT:8800 --name "${CONTAINER_NAME}" "${IMAGE_NAME}"
 
 echo "----------------------------------------------------------"
+echo "All's good!🤗💨🚀"
 echo "Container started on port $PORT."
 echo "Use 'docker logs skainnotate_container' to view logs."
 echo "Use 'docker exec -it skainnotate_container /bin/bash' to open a shell."

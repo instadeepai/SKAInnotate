@@ -32,6 +32,7 @@ def run(port: int = 8000):
     Start the SKAInnotate server.
     """
     typer.echo(f"Starting SKAInnotate server on port {port}...")
+    typer.echo("All's good!🤗💨🚀")
     typer.echo(f"Access the application at http://localhost:{port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
 
