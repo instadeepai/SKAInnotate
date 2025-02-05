@@ -1,6 +1,8 @@
 from pydantic import BaseModel, EmailStr
 from enum import Enum
+from typing import Optional
 from datetime import datetime
+from fastapi import UploadFile
 
 # SQL instance
 class SQLInstance(BaseModel):
@@ -27,7 +29,7 @@ class DeployAppData(BaseModel):
   clientId: str
   superuser_email: EmailStr
   superuser_username: str
-
+  service_account_file: Optional[UploadFile] = None
 class DeploymentCreate(BaseModel):
   project_id: str
   instance_name: str

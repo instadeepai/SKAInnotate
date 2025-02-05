@@ -8,6 +8,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from deployment_setup.backend.app.routers import cloud, index
 from deployment_setup.backend.app.routers import local_deployments
 
+print("OS directory: ", os.listdir("deployment_setup/frontend/build"))
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="deployment_setup/frontend/build/static"), name="static")
 app.add_middleware(SessionMiddleware, secret_key=os.urandom(24))
@@ -41,7 +42,7 @@ def checks():
     """
     Run SKAInnotate health checks.
     """
-    # Implement your checks here
+    # Implement checks here
     typer.echo("Running SKAInnotate checks...")
     # Example: Check database connection, configurations, etc.
 

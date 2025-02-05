@@ -31,8 +31,10 @@ setup(
         "gunicorn>=22.0.0",
         "itsdangerous>=2.2.0",
         "SQLAlchemy>=2.0.30",
+        "pydantic[email]",
         "typer>=0.12.3",
         "uvicorn>=0.30.1",
+        "pyyaml"
         ],
     python_requires=">=3.9",
     entry_points={
