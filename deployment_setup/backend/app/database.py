@@ -26,7 +26,7 @@ class Deployment(Base):
     "service_name='{self.service_name}', " +
     "url='{self.service_url}')>")
 
-engine = create_engine('sqlite:///setup/deployments.db')
+engine = create_engine('sqlite:///deployment_setup/deployments.db')
 Base.metadata.create_all(engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

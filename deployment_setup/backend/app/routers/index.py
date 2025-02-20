@@ -7,4 +7,4 @@ router = APIRouter()
 
 @router.get("/", response_class=HTMLResponse)
 async def get_form(request: Request):
-  return FileResponse("setup/frontend/build/index.html")
+  return FileResponse("deployment_setup/frontend/build/index.html")

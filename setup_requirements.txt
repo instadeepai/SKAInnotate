@@ -1,0 +1,13 @@
+fastapi==0.111.0
+google-api-core==2.19.0
+google-api-python-client==2.134.0
+google-auth==2.30.0
+google-cloud-core==2.4.1
+google-cloud-run==0.10.14
+google-cloud-storage==2.17.0
+gunicorn==22.0.0
+itsdangerous==2.2.0
+pydantic[email]
+pydantic-settings
+SQLAlchemy==2.0.30
+uvicorn==0.30.1

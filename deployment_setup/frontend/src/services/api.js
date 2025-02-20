@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const BASE_API_URL = process.env.REACT_APP_API_URL || '';
-// const BASE_API_URL = 'http://localhost:8000';
+
 export const init = async () => {
   try {
     const response = await axios.get(`${BASE_API_URL}/`);
@@ -34,8 +34,9 @@ export const createSQLInstance = async (sqlInstanceData) => {
 };
 
 export const deployApp = async (configData) => {
+  console.log("config data: ", configData)
   try {
-    const response = await axios.post(`${BASE_API_URL}/deploy`, configData);
+    const response = await axios.post(`${BASE_API_URL}/deploy/to-cloud`, configData);
     return response.data;
   } catch (error) {
     console.error('Error in deployApp:', error);
