@@ -1,10 +1,11 @@
 import os
 import logging
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Form, File, UploadFile
 from fastapi.responses import JSONResponse
 from google.oauth2 import service_account
 from google.api_core.exceptions import NotFound
 from pydantic_settings import BaseSettings
+from pydantic import EmailStr
 
 import deployment_setup.backend.app.utils as utils
 import deployment_setup.backend.app.configs as configs
@@ -70,45 +71,71 @@ async def setup_cloud_sql(sqlInstanceData: schema.SQLInstance):
     logger.error(f"Error setting up Cloud SQL: {e}")
     raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/deploy", response_class=JSONResponse)
-async def setup_cloud_run(deployData: schema.DeployAppData):
-  instance_connection_name = f"{deployData.project_id}:{deployData.region}:{deployData.instance_name}"
-  cfg = configs.get_configs()
-  container_image = cfg['CONTAINER_IMAGE']
 
-  envs_backend = {
-      "PROJECT_ID": deployData.project_id,
-      "REGION": deployData.region,
-      "DB_NAME": deployData.db_name,
-      "DB_PASS": deployData.db_pass,
-      "DB_USER": deployData.db_user,
-      "INSTANCE_NAME": deployData.instance_name,
-      "SUPERUSER_EMAIL": deployData.superuser_email,
-      "SUPERUSER_USERNAME": deployData.superuser_username,
-      "GOOGLE_CLIENT_ID": deployData.clientId,
-      "SERVICE_ACCOUNT_FILE": deployData.service_account_file
-  }
+@router.post("/deploy/to-cloud", response_class=JSONResponse)
+async def setup_cloud_run(
+    project_id: str = Form(...),
+    instance_name: str = Form(...),
+    region: str = Form(...),
+    db_name: str = Form(...),
+    db_user: str = Form(...),
+    db_pass: str = Form(...),
+    service_name: str = Form(...),
+    clientId: str = Form(...),
+    superuser_email: EmailStr = Form(...),
+    superuser_username: str = Form(...),
+    service_account_file: UploadFile = File(None)  # Optional file field
+):
+    instance_connection_name = f"{project_id}:{region}:{instance_name}"
+    # Assume you have a function to get configuration values:
+    cfg = configs.get_configs()
+    container_image = cfg['CONTAINER_IMAGE']
 
-  try:
-    logger.info(f"Deploying service {deployData.service_account_file}")
-    envs_vars_str = ",".join([f'{i}={v}' for i, v in envs_backend.items()])
-    utils.run_deploy(
-      service_account_file=deployData.service_account_file,
-      service_name=deployData.service_name,
-      project_id=deployData.project_id,
-      container_image=container_image,
-      instance_connection_name=instance_connection_name,
-      region=deployData.region,
-      env_vars=envs_vars_str
-    )
+    envs_backend = {
+        "PROJECT_ID": project_id,
+        "REGION": region,
+        "DB_NAME": db_name,
+        "DB_PASS": db_pass,
+        "DB_USER": db_user,
+        "INSTANCE_NAME": instance_name,
+        "SUPERUSER_EMAIL": superuser_email,
+        "SUPERUSER_USERNAME": superuser_username,
+        "GOOGLE_CLIENT_ID": clientId
+    }
 
-    logger.info("Fetching Cloud Run service URL")
-    service_url = utils.get_cloud_run_url(
-      service_name=deployData.service_name,
-      project_id=deployData.project_id,
-      region=deployData.region
-    )
-    return {"message": "Deployment successful", "service_url": service_url}
-  except Exception as e:
-    logger.error(f"Error deploying service: {e}")
-    raise HTTPException(status_code=500, detail=str(e))
+    try:
+        logger.info(f"Deploying service with file: {service_account_file.filename if service_account_file else 'None'}")
+        logger.info("print env dict: {envs_backend}")
+        envs_vars_str = ",".join([f'{k}={v}' for k, v in envs_backend.items()])
+        logger.info("Done parsing dict to strings for env variables {envs_vars_str}")
+
+        import tempfile
+
+        # Read the file contents from the UploadFile
+        file_contents = await service_account_file.read()
+
+        # Save to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as tmp:
+            tmp.write(file_contents)
+            tmp_path = tmp.name
+
+        utils.run_deploy(
+            service_account_file=tmp_path,
+            service_name=service_name,
+            project_id=project_id,
+            container_image=container_image,
+            instance_connection_name=instance_connection_name,
+            region=region,
+            env_vars=envs_vars_str
+        )
+
+        logger.info("Fetching Cloud Run service URL")
+        service_url = utils.get_cloud_run_url(
+            service_name=service_name,
+            project_id=project_id,
+            region=region
+        )
+        return {"message": "Deployment successful", "service_url": service_url}
+    except Exception as e:
+        logger.error(f"Error deploying service: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

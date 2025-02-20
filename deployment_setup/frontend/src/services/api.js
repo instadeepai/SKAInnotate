@@ -36,7 +36,7 @@ export const createSQLInstance = async (sqlInstanceData) => {
 export const deployApp = async (configData) => {
   console.log("config data: ", configData)
   try {
-    const response = await axios.post(`${BASE_API_URL}/deploy`, configData);
+    const response = await axios.post(`${BASE_API_URL}/deploy/to-cloud`, configData);
     return response.data;
   } catch (error) {
     console.error('Error in deployApp:', error);

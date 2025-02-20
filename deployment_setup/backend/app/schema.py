@@ -30,6 +30,7 @@ class DeployAppData(BaseModel):
   superuser_email: EmailStr
   superuser_username: str
   service_account_file: Optional[UploadFile] = None
+
 class DeploymentCreate(BaseModel):
   project_id: str
   instance_name: str

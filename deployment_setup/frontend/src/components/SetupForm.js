@@ -7,7 +7,6 @@ import {
   deployApp,
   addDeployment,
 } from '../services/api';
-
 import {
   Segment,
   Button,
@@ -15,24 +14,37 @@ import {
   Header,
   Divider,
   Grid,
-  Icon
+  Icon,
 } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 
 const SetupForm = () => {
+  // State for submission and file upload
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [serviceAccountFile, setServiceAccountFile] = useState(null);  // Store the selected service account file
+  const [serviceAccountFile, setServiceAccountFile] = useState(null);
 
-  const InputField = ({ label, id, type = 'text', required = true, placeholder = '' }) => (
-    <Form.Field required={required}>
-      <label>{label}</label>
-      <input type={type} id={id} name={id} placeholder={placeholder} />
-    </Form.Field>
-  );
+  // Controlled state for text fields
+  const [formData, setFormData] = useState({
+    project_id: '',
+    instance_name: '',
+    region: '',
+    database_name: '',
+    db_user: '',
+    db_pass: '',
+    google_client_id: '',
+    superuser_username: '',
+    superuser_email: '',
+    service_name: '',
+  });
 
+  // Semantic UI’s Form.Input onChange returns (event, data)
+  const handleInputChange = (e, { name, value }) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // File input handler (native input)
   const handleFileChange = (event) => {
-    event.preventDefault();
     const file = event.target.files[0];
     if (file && file.type === 'application/json' && file.name.endsWith('.json')) {
       setServiceAccountFile(file);
@@ -41,9 +53,10 @@ const SetupForm = () => {
     }
   };
 
-  const validateForm = (formValues) => {
-    for (const key in formValues) {
-      if (!formValues[key]) {
+  // Validate all fields have a value
+  const validateForm = () => {
+    for (const key in formData) {
+      if (!formData[key]) {
         alertify.error('Please fill all required fields.');
         return false;
       }
@@ -55,49 +68,36 @@ const SetupForm = () => {
     return true;
   };
 
+  // Submission handler combining text fields and file upload
   const setupInfrastructure = async (event) => {
-    console.log("Setup infra started!");
     event.preventDefault();
-
     if (loading) return;
     setLoading(true);
     setSuccess(false);
 
-    const formData = new FormData(event.target);
-    if (serviceAccountFile) {
-      formData.append('service_account_file', serviceAccountFile);
-    }
-    const formValues = Object.fromEntries(formData.entries());
-
-    // Validate form fields
-    console.log("Service account file: ", formValues.service_account_file);
-    console.log("Validating fields");
-    if (!validateForm(formValues)) {
+    if (!validateForm()) {
       setLoading(false);
       return;
     }
 
-    console.log("Fields validation complete!");
     let service_url = '';
     let deployment_status = '';
 
     try {
       alertify.success('Application launch in progress...');
-
       const deployResponse = await deployApp({
-        project_id: formValues.project_id,
-        instance_name: formValues.instance_name,
-        region: formValues.region,
-        db_name: formValues.database_name,
-        db_user: formValues.db_user,
-        db_pass: formValues.db_pass,
-        clientId: formValues.google_client_id,
-        service_name: formValues.service_name,
-        superuser_email: formValues.superuser_email,
-        superuser_username: formValues.superuser_username,
-        service_account_file: formValues.service_account_file,
+        project_id: formData.project_id,
+        instance_name: formData.instance_name,
+        region: formData.region,
+        db_name: formData.database_name,
+        db_user: formData.db_user,
+        db_pass: formData.db_pass,
+        clientId: formData.google_client_id,
+        service_name: formData.service_name,
+        superuser_email: formData.superuser_email,
+        superuser_username: formData.superuser_username,
+        service_account_file: serviceAccountFile,
       });
-
       if (deployResponse && deployResponse.service_url) {
         service_url = deployResponse.service_url;
         deployment_status = 'Success';
@@ -112,9 +112,9 @@ const SetupForm = () => {
     } finally {
       try {
         await addDeployment({
-          project_id: formValues.project_id,
-          instance_name: formValues.instance_name,
-          service_name: formValues.service_name,
+          project_id: formData.project_id,
+          instance_name: formData.instance_name,
+          service_name: formData.service_name,
           service_url,
           deployment_status,
         });
@@ -131,84 +131,134 @@ const SetupForm = () => {
         Let's Launch Your SKAInnotate Journey!
       </Header>
 
-      {/* <Form id="setup-form" onSubmit={setupInfrastructure} method="POST" encType="multipart/form-data" loading={loading} success={success}> */}
-      <Form 
-        id="setup-form" 
-        onSubmit={setupInfrastructure} 
-        method="POST" 
-        encType="multipart/form-data" 
-        loading={loading} 
+      <Form
+        id="setup-form"
+        onSubmit={setupInfrastructure}
+        method="POST"
+        encType="multipart/form-data"
+        loading={loading}
         success={success}
-        >
+      >
         <Header as="h3">Project Setup</Header>
-        <InputField label="Project ID" id="project_id" placeholder="my-project-1" />
+        <Form.Input
+          label="Project ID"
+          name="project_id"
+          placeholder="my-project-1"
+          value={formData.project_id}
+          onChange={handleInputChange}
+          required
+        />
 
         <Divider />
         <Header as="h3">Cloud SQL Setup</Header>
         <p>
-          For detailed instructions on setting up a Google Cloud SQL instance, please refer to the
+          For detailed instructions on setting up a Google Cloud SQL instance, please refer to the{' '}
           <a
             href="https://github.com/instadeepai/SKAInnotate?tab=readme-ov-file#database-setup"
             target="_blank"
             rel="noopener noreferrer"
           >
-            &nbsp;Google SQL setup for SKAInnotate
+            Google SQL setup for SKAInnotate
           </a>.
         </p>
         <Grid columns={2} stackable>
           <Grid.Row>
             <Grid.Column>
-              <InputField
+              <Form.Input
                 label="Instance Name"
-                id="instance_name"
-                className="field-margin"
+                name="instance_name"
                 placeholder="my-db-instance"
+                value={formData.instance_name}
+                onChange={handleInputChange}
+                required
               />
             </Grid.Column>
             <Grid.Column>
-              <InputField
+              <Form.Input
                 label="Region"
-                id="region"
-                className="field-margin"
+                name="region"
                 placeholder="us-central1"
+                value={formData.region}
+                onChange={handleInputChange}
+                required
               />
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
             <Grid.Column>
-              <InputField
+              <Form.Input
                 label="Database Schema Name"
-                id="database_name"
+                name="database_name"
                 placeholder="my-database"
+                value={formData.database_name}
+                onChange={handleInputChange}
+                required
               />
             </Grid.Column>
             <Grid.Column>
-              <InputField label="Database Username" id="db_user" placeholder="user1" />
+              <Form.Input
+                label="Database Username"
+                name="db_user"
+                placeholder="user1"
+                value={formData.db_user}
+                onChange={handleInputChange}
+                required
+              />
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
             <Grid.Column>
-              <InputField label="Database Password" id="db_pass" type="password" />
+              <Form.Input
+                label="Database Password"
+                name="db_pass"
+                type="password"
+                value={formData.db_pass}
+                onChange={handleInputChange}
+                required
+              />
             </Grid.Column>
           </Grid.Row>
         </Grid>
+
         <Divider />
         <Header as="h3">Google Authentication Setup</Header>
-          <p>
-            For more information on setting up a Google Cloud OAuth 2.0 authentication, refer to the 
-            <a href="https://github.com/instadeepai/SKAInnotate?tab=readme-ov-file#google-authentication-setup" 
-              target="_blank" rel="noopener noreferrer"> Google OAuth for SKAInnotate</a>.
-          </p>
-        <InputField label="OAuth 2.0 Client ID" id="google_client_id" placeholder="123abc.apps.googleusercontent.com"/>
+        <p>
+          For more information on setting up a Google Cloud OAuth 2.0 authentication, refer to the{' '}
+          <a
+            href="https://github.com/instadeepai/SKAInnotate?tab=readme-ov-file#google-authentication-setup"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Google OAuth for SKAInnotate
+          </a>.
+        </p>
+        <Form.Input
+          label="OAuth 2.0 Client ID"
+          name="google_client_id"
+          placeholder="123abc.apps.googleusercontent.com"
+          value={formData.google_client_id}
+          onChange={handleInputChange}
+          required
+        />
+
         <Divider />
-        
         <Header as="h3">Admin Setup</Header>
-        <InputField label="Username" id="superuser_username" placeholder="john" />
-        <InputField
+        <Form.Input
+          label="Username"
+          name="superuser_username"
+          placeholder="john"
+          value={formData.superuser_username}
+          onChange={handleInputChange}
+          required
+        />
+        <Form.Input
           label="Email Address"
-          id="superuser_email"
+          name="superuser_email"
           type="email"
           placeholder="johndoe@mail.com"
+          value={formData.superuser_email}
+          onChange={handleInputChange}
+          required
         />
 
         <Divider />
@@ -226,7 +276,14 @@ const SetupForm = () => {
 
         <Divider />
         <Header as="h3">Cloud Run Setup</Header>
-        <InputField label="Service Name" id="service_name" placeholder="my-annotation-app" />
+        <Form.Input
+          label="Service Name"
+          name="service_name"
+          placeholder="my-annotation-app"
+          value={formData.service_name}
+          onChange={handleInputChange}
+          required
+        />
 
         <Button color="blue" fluid type="submit" disabled={loading}>
           <Icon name="check circle" /> Launch
